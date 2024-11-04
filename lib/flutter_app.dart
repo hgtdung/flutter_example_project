@@ -8,6 +8,7 @@
 import 'dart:async';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_example_project/environment_config.dart';
 
 import 'data/data_provider/api/network/exceptions/network_exceptions.dart';
 import 'di/service_locator.dart';
@@ -16,15 +17,15 @@ void initApplication() {
   setupServiceLocator();
 
   runZonedGuarded((){
-    const FlutterApp();
+    runApp(const FlutterApp());
+
   }, (error, stackTrace) {
     /// Report crashlytics
     if ((error is NetworkExceptions)) {
       error.maybeWhen(orElse: () {
         FirebaseCrashlytics.instance.recordError(error, stackTrace);
       }, unauthorisedRequest: () {
-        // TODO investigate this app session
-        // serviceLocator<AppSessionVM>().handleTokenExpired();
+
       });
     } else {
       FirebaseCrashlytics.instance.recordError(error, stackTrace);
@@ -37,6 +38,16 @@ class FlutterApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return MaterialApp(
+      home: Scaffold(
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const SizedBox(height: 50,),
+            Center(child: Text("Welcome to ${EnvironmentConfig.instance.values.appName}"))
+          ],
+        ),
+      ),
+    );
   }
 }

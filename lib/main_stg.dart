@@ -12,7 +12,7 @@ void main() {
           baseUrl: "https://baseUrl",
           androidBundleId: "com.company.foundation_description",
           iosBundleId: "com.company.foundation_description",
-          appName: "xxAppName",
+          appName: "exampleAppStg",
           /// Using for login by ios
           iosClientId: "iosClientId",
           cdnUrl: "https://xxxURL"),
