@@ -1,5 +1,6 @@
 
 import 'package:dio/dio.dart';
+import 'package:flutter_example_project/data/data_provider/api/network/error_response.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 part 'network_exceptions.freezed.dart';
 
@@ -57,7 +58,7 @@ sealed class NetworkExceptions with _$NetworkExceptions {
               networkExceptions =
               const NetworkExceptions.noInternetConnection();
             case DioExceptionType.badCertificate:
-              networkExceptions = const NetworkExceptions.badRequest();
+              networkExceptions =  NetworkExceptions.badRequest();
 
             case DioExceptionType.connectionError:
               networkExceptions = const NetworkExceptions.connectionError();
