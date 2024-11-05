@@ -9,6 +9,7 @@ import 'dart:async';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_example_project/environment_config.dart';
+import 'package:flutter_example_project/routes.dart';
 
 import 'data/data_provider/api/network/exceptions/network_exceptions.dart';
 import 'di/service_locator.dart';
@@ -39,15 +40,17 @@ class FlutterApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Scaffold(
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const SizedBox(height: 50,),
-            Center(child: Text("Welcome to ${EnvironmentConfig.instance.values.appName}"))
-          ],
-        ),
-      ),
+      onGenerateRoute: Routes.onGenerateRoute,
+
+      // home: Scaffold(
+      //   body: Column(
+      //     crossAxisAlignment: CrossAxisAlignment.center,
+      //     children: [
+      //       const SizedBox(height: 50,),
+      //       Center(child: Text("Welcome to ${EnvironmentConfig.instance.values.appName}"))
+      //     ],
+      //   ),
+      // ),
     );
   }
 }
