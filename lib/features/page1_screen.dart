@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_example_project/utils/utils.dart';
 
 class Page1Screen extends StatefulWidget {
   const Page1Screen({super.key});
@@ -10,9 +11,16 @@ class Page1Screen extends StatefulWidget {
 class _Page1ScreenState extends State<Page1Screen> {
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return  Scaffold(
       body: Center(
-        child: Text("Page 1"),
+        child: SizedBox(
+          height: 100,
+            child: Column(
+              children: [
+                Text("Page 1 "),
+                Text(Translator.instance(context).helloWorld)
+              ],
+            ))
       ),
     );
   }

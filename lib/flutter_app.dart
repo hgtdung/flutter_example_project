@@ -8,11 +8,11 @@
 import 'dart:async';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_example_project/environment_config.dart';
 import 'package:flutter_example_project/routes.dart';
 
 import 'data/data_provider/api/network/exceptions/network_exceptions.dart';
 import 'di/service_locator.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 void initApplication() {
   setupServiceLocator();
@@ -39,18 +39,11 @@ class FlutterApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
+      locale: Locale("es"),
       onGenerateRoute: Routes.onGenerateRoute,
-
-      // home: Scaffold(
-      //   body: Column(
-      //     crossAxisAlignment: CrossAxisAlignment.center,
-      //     children: [
-      //       const SizedBox(height: 50,),
-      //       Center(child: Text("Welcome to ${EnvironmentConfig.instance.values.appName}"))
-      //     ],
-      //   ),
-      // ),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
     );
   }
 }
