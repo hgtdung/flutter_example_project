@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_example_project/features/page1_screen.dart';
+import 'package:flutter_example_project/features/page1_screen/page1_screen.dart';
 import 'package:flutter_example_project/features/page2_screen.dart';
 import 'package:flutter_example_project/features/page3_screen.dart';
 import 'package:flutter_example_project/kwidget/kbottom_navigation/k_tab_view.lib.dart';
