@@ -1,46 +1,48 @@
 part of k_bottom_nav_bar;
 
-class NavBarEssentials {
-  const NavBarEssentials({
+class _NavBarEssentials {
+  const _NavBarEssentials({
     required this.items,
-    this.selectedIndex,
-    this.previousIndex,
-    this.backgroundColor,
-    this.popScreensOnTapOfSelectedTab,
-    this.popAllScreensOnTapAnyTabs,
-    this.itemAnimationProperties,
-    this.navBarHeight = 0.0,
-    this.onItemSelected,
-    this.padding,
+    required this.selectedIndex,
+    required this.previousIndex,
+    required this.backgroundColor,
+    required this.itemAnimationProperties,
+    required this.onItemSelected,
+    required this.padding,
+    required this.margin,
+    required this.navBarItemsAlignment,
     this.selectedScreenBuildContext,
+    this.navBarHeight = 0.0,
   });
 
-  final int? selectedIndex;
-  final int? previousIndex;
-  final Color? backgroundColor;
-  final List<PersistentBottomNavBarItem>? items;
+  final int selectedIndex;
+  final int previousIndex;
+  final Color backgroundColor;
+  final List<KBottomNavBarItem> items;
   final ValueChanged<int>? onItemSelected;
-  final double? navBarHeight;
-  final NavBarPadding? padding;
-  final bool? popScreensOnTapOfSelectedTab;
-  final bool? popAllScreensOnTapAnyTabs;
-  final ItemAnimationProperties? itemAnimationProperties;
+  final double navBarHeight;
+  final EdgeInsets padding;
+  final ItemAnimationSettings itemAnimationProperties;
   final BuildContext? selectedScreenBuildContext;
+  final MainAxisAlignment navBarItemsAlignment;
+  final EdgeInsets margin;
 
-  NavBarEssentials copyWith({
+  _NavBarEssentials copyWith({
     final int? selectedIndex,
     final int? previousIndex,
     final double? iconSize,
     final Color? backgroundColor,
-    final List<PersistentBottomNavBarItem>? items,
+    final List<KBottomNavBarItem>? items,
     final ValueChanged<int>? onItemSelected,
     final double? navBarHeight,
-    final NavBarPadding? padding,
+    final EdgeInsets? padding,
+    final EdgeInsets? margin,
     final Function(int)? popAllScreensForTheSelectedTab,
-    final bool? popScreensOnTapOfSelectedTab,
-    final ItemAnimationProperties? itemAnimationProperties,
+    final ItemAnimationSettings? itemAnimationProperties,
+    final BuildContext? selectedScreenBuildContext,
+    final MainAxisAlignment? navBarItemsAlignment,
   }) =>
-      NavBarEssentials(
+      _NavBarEssentials(
         selectedIndex: selectedIndex ?? this.selectedIndex,
         previousIndex: previousIndex ?? this.previousIndex,
         backgroundColor: backgroundColor ?? this.backgroundColor,
@@ -48,9 +50,11 @@ class NavBarEssentials {
         onItemSelected: onItemSelected ?? this.onItemSelected,
         navBarHeight: navBarHeight ?? this.navBarHeight,
         padding: padding ?? this.padding,
-        popScreensOnTapOfSelectedTab:
-        popScreensOnTapOfSelectedTab ?? this.popScreensOnTapOfSelectedTab,
+        margin: margin ?? this.margin,
         itemAnimationProperties:
         itemAnimationProperties ?? this.itemAnimationProperties,
+        selectedScreenBuildContext:
+        selectedScreenBuildContext ?? this.selectedScreenBuildContext,
+        navBarItemsAlignment: navBarItemsAlignment ?? this.navBarItemsAlignment,
       );
 }

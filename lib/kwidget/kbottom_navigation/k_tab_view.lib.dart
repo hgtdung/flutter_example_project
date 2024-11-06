@@ -1,9 +1,12 @@
+/// Fork from persistent_navigator_bar
+///
 library k_bottom_nav_bar;
 
 import 'package:flutter/material.dart';
 import "package:flutter/cupertino.dart";
 import 'dart:ui';
 import 'dart:math';
+import 'dart:collection';
 
 /// widgets
 part "k_tab_view.dart";
@@ -21,8 +24,7 @@ part "models/k_bottom_nav_bar_item.dart";
 part "models/route_setting.dart";
 part "models/k_bottom_nav_bar_styles.dart";
 part "models/nav_bar_essentials.dart";
-part "models/nav_bar_padding.dart";
-
+part "models/nav_bar_scroll_data.dart";
 
 /// utils
 part "utils/k_bottom_navigation_bar_utils.dart";

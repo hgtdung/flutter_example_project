@@ -1,5 +1,6 @@
 part of k_bottom_nav_bar;
 
+
 enum NavBarStyle {
   style1,
   style2,
@@ -21,11 +22,10 @@ enum NavBarStyle {
   style18,
   style19,
   neumorphic,
-  myStyle,
   simple,
 }
 
-enum PopActionScreensType { once, all }
+enum PopBehavior { once, all, none }
 
 class NavBarDecoration {
   const NavBarDecoration({
@@ -34,7 +34,7 @@ class NavBarDecoration {
     this.borderRadius,
     this.colorBehindNavBar = CupertinoColors.black,
     this.boxShadow,
-    this.adjustScreenBottomPaddingOnCurve = true,
+    this.useBackdropFilter = true,
   });
 
   ///Defines the curve radius of the corners of the NavBar.
@@ -51,6 +51,8 @@ class NavBarDecoration {
 
   final List<BoxShadow>? boxShadow;
 
-  ///If enabled, the screen's bottom padding will be adjusted accordingly to the amount of curve applied.
-  final bool adjustScreenBottomPaddingOnCurve;
+  final bool useBackdropFilter;
 }
+
+enum NavBarPosition { top, bottom }
+

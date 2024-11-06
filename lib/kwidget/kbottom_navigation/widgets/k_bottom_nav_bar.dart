@@ -1,246 +1,268 @@
 part of k_bottom_nav_bar;
 
-class KBottomNavBarWidget extends StatelessWidget {
-  const KBottomNavBarWidget({
-    super.key,
-    this.margin,
-    this.confineToSafeArea,
+
+
+class _KBottomNavBarWidget extends StatelessWidget {
+  const _KBottomNavBarWidget({
+    required this.confineToSafeArea,
+    required this.navBarEssentials,
+    required this.navBarDecoration,
+    required this.navBarStyle,
+    required this.hideNavigationBar,
+    required this.navBarHideAnimationController,
     this.customNavBarWidget,
-    this.hideNavigationBar,
     this.onAnimationComplete,
-    this.navBarEssentials,
-    this.navBarDecoration,
-    this.navBarStyle,
     this.isCustomWidget = false,
-  });
+    final Key? key,
+  }) : super(key: key);
 
-  final NavBarEssentials? navBarEssentials;
-  final EdgeInsets? margin;
-  final NavBarDecoration? navBarDecoration;
-  final NavBarStyle? navBarStyle;
+  final AnimationController navBarHideAnimationController;
+  final _NavBarEssentials navBarEssentials;
+  final NavBarDecoration navBarDecoration;
+  final NavBarStyle navBarStyle;
   final Widget? customNavBarWidget;
-  final bool? confineToSafeArea;
-  final bool? hideNavigationBar;
+  final bool confineToSafeArea;
+  final bool hideNavigationBar;
   final Function(bool, bool)? onAnimationComplete;
-  final bool? isCustomWidget;
+  final bool isCustomWidget;
 
-  Padding _navBarWidget() => Padding(
-    padding: margin!,
-    /// custom widget or not => check margin bottom
-    /// margin bottom > 0, navBar height == 0 || hide navigation bar => safe area bottom = false
-    /// or else chekc confineToSafeArea => safeArea bottom = true
-    child: isCustomWidget!
-        ? margin!.bottom > 0
-        ? SafeArea(
-      top: false,
-      bottom: navBarEssentials!.navBarHeight == 0.0 ||
-          (hideNavigationBar ?? false)
-          ? false
-          : confineToSafeArea ?? true,
-      child: Container(
-        color: navBarEssentials!.backgroundColor,
-        height: navBarEssentials!.navBarHeight,
-        child: customNavBarWidget,
-      ),
-    )
-        : Container(
-      color: navBarEssentials!.backgroundColor,
-      child: SafeArea(
-          top: false,
-          bottom: navBarEssentials!.navBarHeight == 0.0 ||
-              (hideNavigationBar ?? false)
-              ? false
-              : confineToSafeArea ?? true,
-          child: SizedBox(
-              height: navBarEssentials!.navBarHeight,
-              child: customNavBarWidget)),
-    )
-        : navBarStyle == NavBarStyle.style19
-        ? margin!.bottom > 0
-        ? SafeArea(
-      top: false,
-      right: false,
-      left: false,
-      bottom: navBarEssentials!.navBarHeight == 0.0 ||
-          (hideNavigationBar ?? false)
-          ? false
-          : confineToSafeArea ?? true,
-      child: getNavBarStyle(),
-    )
-        : DecoratedBox(
-      decoration: KBottomNavigationBarUtilFunctions
-          .getNavBarDecoration(
-        decoration: navBarDecoration,
-        color: navBarEssentials!.backgroundColor,
-        opacity: navBarEssentials!
-            .items![navBarEssentials!.selectedIndex!].opacity,
-      ),
-      child: SafeArea(
-        top: false,
-        right: false,
-        left: false,
-        bottom: navBarEssentials!.navBarHeight == 0.0 ||
-            (hideNavigationBar ?? false)
-            ? false
-            : confineToSafeArea ?? true,
-        child: getNavBarStyle(),
-      ),
-    )
-        : navBarStyle == NavBarStyle.style15 ||
-        navBarStyle == NavBarStyle.style16
-        ? margin!.bottom > 0
-        ? SafeArea(
-      top: false,
-      right: false,
-      left: false,
-      bottom: navBarEssentials!.navBarHeight == 0.0 ||
-          (hideNavigationBar ?? false)
-          ? false
-          : confineToSafeArea ?? true,
-      child: DecoratedBox(
-        decoration:
-        KBottomNavigationBarUtilFunctions
-            .getNavBarDecoration(
-          decoration: navBarDecoration,
-          color: navBarEssentials!.backgroundColor,
-          opacity: navBarEssentials!
-              .items![navBarEssentials!.selectedIndex!]
-              .opacity,
-        ),
-        child: getNavBarStyle(),
-      ),
-    )
-        : DecoratedBox(
-      decoration:
-      KBottomNavigationBarUtilFunctions
-          .getNavBarDecoration(
-        decoration: navBarDecoration,
-        color: navBarEssentials!.backgroundColor,
-        opacity: navBarEssentials!
-            .items![navBarEssentials!.selectedIndex!]
-            .opacity,
-      ),
-      child: SafeArea(
-        top: false,
-        right: false,
-        left: false,
-        bottom: navBarEssentials!.navBarHeight == 0.0 ||
-            (hideNavigationBar ?? false)
-            ? false
-            : confineToSafeArea ?? true,
-        child: getNavBarStyle(),
-      ),
-    )
-        : DecoratedBox(
-      decoration: KBottomNavigationBarUtilFunctions
-          .getNavBarDecoration(
-        decoration: navBarDecoration,
-        showBorder: false,
-        color: navBarEssentials!.backgroundColor,
-        opacity: navBarEssentials!
-            .items![navBarEssentials!.selectedIndex!].opacity,
-      ),
-      child: ClipRRect(
-        borderRadius: navBarDecoration!.borderRadius ??
-            BorderRadius.zero,
-        child: BackdropFilter(
-          filter: navBarEssentials!
-              .items![navBarEssentials!.selectedIndex!]
-              .filter ??
-              ImageFilter.blur(sigmaX: 3, sigmaY: 3),
-          child: DecoratedBox(
+  Padding _navBarWidget(final BuildContext context) => Padding(
+    padding: navBarEssentials.margin,
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (isCustomWidget)
+          navBarEssentials.margin.bottom > 0
+              ? DecoratedBox(
+            decoration: BoxDecoration(
+              color: navBarEssentials.backgroundColor,
+            ),
+            child: Padding(
+              padding: EdgeInsets.only(
+                  bottom: confineToSafeArea
+                      ? MediaQuery.paddingOf(context).bottom
+                      : 0),
+              child: SizedBox(
+                height: navBarEssentials.navBarHeight,
+                child: customNavBarWidget,
+              ),
+            ),
+          )
+              : DecoratedBox(
+            decoration: BoxDecoration(
+              color: navBarEssentials.backgroundColor,
+            ),
+            child: Padding(
+              padding: EdgeInsets.only(
+                  bottom: confineToSafeArea
+                      ? MediaQuery.paddingOf(context).bottom
+                      : 0),
+              child: SizedBox(
+                height: navBarEssentials.navBarHeight,
+                child: customNavBarWidget,
+              ),
+            ),
+          )
+        else
+          navBarStyle == NavBarStyle.style19
+              ? navBarEssentials.margin.bottom > 0
+              ? Padding(
+            padding: EdgeInsets.only(
+                bottom: confineToSafeArea
+                    ? MediaQuery.paddingOf(context).bottom
+                    : 0),
+            child: getNavBarStyle(),
+          )
+              : DecoratedBox(
             decoration:
-            KBottomNavigationBarUtilFunctions
+            _KBottomNavigationBarUtilFunctions
+                .getNavBarDecoration(
+              decoration: navBarDecoration,
+              color: navBarEssentials.backgroundColor,
+              opacity: navBarEssentials
+                  .items[navBarEssentials.selectedIndex].opacity,
+            ),
+            child: Padding(
+              padding: EdgeInsets.only(
+                  bottom: confineToSafeArea
+                      ? MediaQuery.paddingOf(context).bottom
+                      : 0),
+              child: getNavBarStyle(),
+            ),
+          )
+              : navBarStyle == NavBarStyle.style15 ||
+              navBarStyle == NavBarStyle.style16
+              ? navBarEssentials.margin.bottom > 0
+              ? DecoratedBox(
+            decoration:
+            _KBottomNavigationBarUtilFunctions
+                .getNavBarDecoration(
+              decoration: navBarDecoration,
+              color: navBarEssentials.backgroundColor,
+              opacity: navBarEssentials
+                  .items[navBarEssentials.selectedIndex]
+                  .opacity,
+            ),
+            child: Padding(
+              padding: EdgeInsets.only(
+                  bottom: confineToSafeArea
+                      ? MediaQuery.paddingOf(context).bottom
+                      : 0),
+              child: getNavBarStyle(),
+            ),
+          )
+              : DecoratedBox(
+            decoration:
+            _KBottomNavigationBarUtilFunctions
+                .getNavBarDecoration(
+              decoration: navBarDecoration,
+              color: navBarEssentials.backgroundColor,
+              opacity: navBarEssentials
+                  .items[navBarEssentials.selectedIndex]
+                  .opacity,
+            ),
+            child: Padding(
+              padding: EdgeInsets.only(
+                  bottom: confineToSafeArea
+                      ? MediaQuery.paddingOf(context).bottom
+                      : 0),
+              child: getNavBarStyle(),
+            ),
+          )
+              : navBarDecoration.useBackdropFilter
+              ? DecoratedBox(
+            decoration:
+            _KBottomNavigationBarUtilFunctions
+                .getNavBarDecoration(
+              decoration: navBarDecoration,
+              showBorder: false,
+              color: navBarEssentials.backgroundColor,
+              opacity: navBarEssentials
+                  .items[navBarEssentials.selectedIndex]
+                  .opacity,
+            ),
+            child: ClipRRect(
+              borderRadius: navBarDecoration.borderRadius ??
+                  BorderRadius.zero,
+              child: BackdropFilter(
+                filter: navBarEssentials
+                    .items[navBarEssentials.selectedIndex]
+                    .filter ??
+                    ImageFilter.blur(sigmaX: 3, sigmaY: 3),
+                child: DecoratedBox(
+                  decoration:
+                  _KBottomNavigationBarUtilFunctions
+                      .getNavBarDecoration(
+                    showOpacity: false,
+                    decoration: navBarDecoration,
+                    color: navBarEssentials.backgroundColor,
+                    opacity: navBarEssentials
+                        .items[navBarEssentials.selectedIndex]
+                        .opacity,
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                        bottom: confineToSafeArea
+                            ? MediaQuery.paddingOf(context)
+                            .bottom
+                            : 0),
+                    child: getNavBarStyle(),
+                  ),
+                ),
+              ),
+            ),
+          )
+              : DecoratedBox(
+            decoration:
+            _KBottomNavigationBarUtilFunctions
                 .getNavBarDecoration(
               showOpacity: false,
               decoration: navBarDecoration,
-              color: navBarEssentials!.backgroundColor,
-              opacity: navBarEssentials!
-                  .items![navBarEssentials!.selectedIndex!]
+              color: navBarEssentials.backgroundColor,
+              opacity: navBarEssentials
+                  .items[navBarEssentials.selectedIndex]
                   .opacity,
             ),
-            child: SafeArea(
-              top: false,
-              right: false,
-              left: false,
-              bottom: navBarEssentials!.navBarHeight == 0.0 ||
-                  (hideNavigationBar ?? false)
-                  ? false
-                  : confineToSafeArea ?? true,
+            child: Padding(
+              padding: EdgeInsets.only(
+                  bottom: confineToSafeArea
+                      ? MediaQuery.paddingOf(context).bottom
+                      : 0),
               child: getNavBarStyle(),
             ),
           ),
-        ),
-      ),
+      ],
     ),
   );
 
   @override
-  Widget build(final BuildContext context) => hideNavigationBar == null
-      ? _navBarWidget()
-      : OffsetAnimation(
+  Widget build(final BuildContext context) => _OffsetAnimation(
     hideNavigationBar: hideNavigationBar,
-    navBarHeight: navBarEssentials!.navBarHeight,
+    navBarHeight: navBarEssentials.navBarHeight +
+        MediaQuery.paddingOf(context).bottom,
+    navBarHideAnimationController: navBarHideAnimationController,
     onAnimationComplete: (final isAnimating, final isComplete) {
       onAnimationComplete!(isAnimating, isComplete);
     },
-    child: _navBarWidget(),
+    child: _navBarWidget(context),
   );
 
-  KBottomNavBarWidget copyWith(
+  _KBottomNavBarWidget copyWith(
       {final int? selectedIndex,
         final double? iconSize,
         final int? previousIndex,
         final Color? backgroundColor,
         final Duration? animationDuration,
-        final List<PersistentBottomNavBarItem>? items,
+        final List<KBottomNavBarItem>? items,
         final ValueChanged<int>? onItemSelected,
         final double? navBarHeight,
-        final EdgeInsets? margin,
         final NavBarStyle? navBarStyle,
         final double? horizontalPadding,
         final Widget? customNavBarWidget,
         final Function(int)? popAllScreensForTheSelectedTab,
         final bool? popScreensOnTapOfSelectedTab,
         final NavBarDecoration? navBarDecoration,
-        final NavBarEssentials? navBarEssentials,
+        final _NavBarEssentials? navBarEssentials,
         final bool? confineToSafeArea,
-        final ItemAnimationProperties? itemAnimationProperties,
+        final ItemAnimationSettings? itemAnimationProperties,
         final Function? onAnimationComplete,
+        final AnimationController? navBarHideAnimationController,
         final bool? hideNavigationBar,
         final bool? isCustomWidget,
         final EdgeInsets? padding}) =>
-      KBottomNavBarWidget(
+      _KBottomNavBarWidget(
           confineToSafeArea: confineToSafeArea ?? this.confineToSafeArea,
-          margin: margin ?? this.margin,
+          navBarHideAnimationController: navBarHideAnimationController ??
+              this.navBarHideAnimationController,
           navBarStyle: navBarStyle ?? this.navBarStyle,
           hideNavigationBar: hideNavigationBar ?? this.hideNavigationBar,
           customNavBarWidget: customNavBarWidget ?? this.customNavBarWidget,
-          onAnimationComplete:
-          onAnimationComplete as dynamic Function(bool, bool)? ??
+          onAnimationComplete: onAnimationComplete as dynamic Function(
+              bool isAnimating, bool isComplete)? ??
               this.onAnimationComplete,
           navBarEssentials: navBarEssentials ?? this.navBarEssentials,
           isCustomWidget: isCustomWidget ?? this.isCustomWidget,
           navBarDecoration: navBarDecoration ?? this.navBarDecoration);
 
-  bool opaque(final int? index) => navBarEssentials!.items == null
+  bool opaque(final int? index) => navBarEssentials.items.isEmpty
       ? true
-      : !(navBarEssentials!.items![index!].opacity < 1.0);
+      : !(navBarEssentials.items[index!].opacity < 1.0);
 
   Widget getNavBarStyle() {
-    if (isCustomWidget!) {
+    if (isCustomWidget) {
       return customNavBarWidget ?? const SizedBox.shrink();
     } else {
       switch (navBarStyle) {
         case NavBarStyle.style1:
-          return BottomNavStyle1(
+          return _BottomNavStyle1(
             navBarEssentials: navBarEssentials,
           );
         default:
-          return BottomNavSimple(
+          return _BottomNavSimple(
             navBarEssentials: navBarEssentials,
           );
       }
     }
   }
 }
+

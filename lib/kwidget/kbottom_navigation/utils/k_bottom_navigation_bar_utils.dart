@@ -1,26 +1,28 @@
 part of k_bottom_nav_bar;
 
-class KBottomNavigationBarUtilFunctions {
-  KBottomNavigationBarUtilFunctions._();
+class _KBottomNavigationBarUtilFunctions {
+  _KBottomNavigationBarUtilFunctions._();
 
   static BoxDecoration getNavBarDecoration({
     required final double opacity,
-    final bool showElevation = true,
-    final NavBarDecoration? decoration = const NavBarDecoration(),
+    final NavBarDecoration decoration = const NavBarDecoration(),
     final bool showBorder = true,
     final bool showOpacity = true,
     final Color? color = Colors.white,
   }) {
     if (opacity < 1.0) {
       return BoxDecoration(
-        border: showBorder ? decoration!.border : null,
-        borderRadius: decoration!.borderRadius,
-        color: color!.withOpacity(opacity),
-      );
+          border: showBorder ? decoration.border : null,
+          borderRadius: decoration.borderRadius,
+          color: decoration.boxShadow != null
+              ? Colors.transparent
+              : color!.withOpacity(opacity),
+          gradient: decoration.gradient,
+          boxShadow: decoration.boxShadow);
     } else {
       return BoxDecoration(
-        border: showBorder ? decoration!.border : null,
-        borderRadius: decoration!.borderRadius,
+        border: showBorder ? decoration.border : null,
+        borderRadius: decoration.borderRadius,
         color: color,
         gradient: decoration.gradient,
         boxShadow: decoration.boxShadow,
@@ -36,7 +38,7 @@ class KBottomNavigationBarUtilFunctions {
   }
 
   static bool opaque(
-      final List<PersistentBottomNavBarItem> items, final int? selectedIndex) {
+      final List<KBottomNavBarItem> items, final int? selectedIndex) {
     for (int i = 0; i < items.length; ++i) {
       if (items[i].opacity < 1.0 && i == selectedIndex) {
         return false;
@@ -46,7 +48,7 @@ class KBottomNavigationBarUtilFunctions {
   }
 
   static double getTranslucencyAmount(
-      final List<PersistentBottomNavBarItem> items, final int? selectedIndex) {
+      final List<KBottomNavBarItem> items, final int? selectedIndex) {
     for (int i = 0; i < items.length; ++i) {
       if (items[i].opacity < 1.0 && i == selectedIndex) {
         return items[i].opacity;
@@ -57,13 +59,12 @@ class KBottomNavigationBarUtilFunctions {
 
   static Color getBackgroundColor(
       final BuildContext context,
-      final List<PersistentBottomNavBarItem>? items,
+      final List<KBottomNavBarItem> items,
       final Color? color,
       final int? selectedIndex) {
     if (color == null) {
       return Colors.white;
-    } else if (!opaque(items!, selectedIndex) &&
-        isColorOpaque(context, color)) {
+    } else if (!opaque(items, selectedIndex) && isColorOpaque(context, color)) {
       return color.withOpacity(getTranslucencyAmount(items, selectedIndex));
     } else {
       return color;

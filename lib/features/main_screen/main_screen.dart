@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_example_project/environment_config.dart';
 import 'package:flutter_example_project/features/page1_screen.dart';
 import 'package:flutter_example_project/features/page2_screen.dart';
 import 'package:flutter_example_project/features/page3_screen.dart';
@@ -32,17 +31,24 @@ class _MainScreenState extends State<MainScreen> {
       resizeToAvoidBottomInset: true, // This needs to be true if you want to move up the screen on a non-scrollable screen when keyboard appears. Default is true.
       stateManagement: true, // Default is true.
       hideNavigationBarWhenKeyboardAppears: true,
-      popBehaviorOnSelectedNavBarItemPress: PopActionScreensType.all,
+      popBehaviorOnSelectedNavBarItemPress: PopBehavior.all,
+      padding: const EdgeInsets.only(top: 8),
       backgroundColor: Colors.grey.shade900,
-      screenTransitionAnimationSetting: const ScreenTransitionAnimationSetting(
-      // Screen transition animation on change of selected tab.
-      animateTabTransition: true,
-      curve: Curves.ease,
-      duration: Duration(milliseconds: 200),
+      isVisible: true,
+      animationSettings: const NavBarAnimationSettings(
+        navBarItemAnimation: ItemAnimationSettings( // Navigation Bar's items animation properties.
+          duration: Duration(milliseconds: 400),
+          curve: Curves.ease,
+        ),
+        screenTransitionAnimation: ScreenTransitionAnimationSettings( // Screen transition animation on change of selected tab.
+          animateTabTransition: true,
+          duration: Duration(milliseconds: 200),
+          screenTransitionAnimationType: ScreenTransitionAnimationType.fadeIn,
+        ),
       ),
       confineToSafeArea: true,
       navBarHeight: kBottomNavigationBarHeight,
-      navBarStyle: NavBarStyle.myStyle, // Choose the nav bar style with this property
+      navBarStyle: NavBarStyle.simple, // Choose the nav bar style with this propertyr style with this property
     );
   }
 
@@ -54,9 +60,9 @@ class _MainScreenState extends State<MainScreen> {
       const Page3Screen()
     ];
   }
-List<PersistentBottomNavBarItem> _navBarsItems() {
+List<KBottomNavBarItem> _navBarsItems() {
   return [
-    PersistentBottomNavBarItem(
+    KBottomNavBarItem(
       icon: Icon(CupertinoIcons.home),
       title: ("Page1"),
       activeColorPrimary: CupertinoColors.activeBlue,
@@ -69,7 +75,7 @@ List<PersistentBottomNavBarItem> _navBarsItems() {
         // },
       ),
     ),
-    PersistentBottomNavBarItem(
+    KBottomNavBarItem(
       icon: Icon(CupertinoIcons.settings),
       title: ("Page2"),
       activeColorPrimary: CupertinoColors.activeBlue,
@@ -82,7 +88,7 @@ List<PersistentBottomNavBarItem> _navBarsItems() {
         // },
       ),
     ),
-    PersistentBottomNavBarItem(
+    KBottomNavBarItem(
       icon: Icon(CupertinoIcons.settings),
       title: ("Page3"),
       activeColorPrimary: CupertinoColors.activeBlue,

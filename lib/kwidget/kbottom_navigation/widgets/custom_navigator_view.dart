@@ -1,7 +1,7 @@
 part of k_bottom_nav_bar;
 
-class CustomNavigatorView extends StatefulWidget {
-  const CustomNavigatorView({
+class _CustomNavigatorView extends StatefulWidget {
+  const _CustomNavigatorView({
     final Key? key,
     this.builder,
     this.routeAndNavigatorSettings,
@@ -13,7 +13,7 @@ class CustomNavigatorView extends StatefulWidget {
   _CustomNavigatorViewState createState() => _CustomNavigatorViewState();
 }
 
-class _CustomNavigatorViewState extends State<CustomNavigatorView> {
+class _CustomNavigatorViewState extends State<_CustomNavigatorView> {
   final HeroController _heroController =
   CupertinoApp.createCupertinoHeroController();
   late List<NavigatorObserver?> _navigatorObservers;
@@ -25,7 +25,7 @@ class _CustomNavigatorViewState extends State<CustomNavigatorView> {
   }
 
   @override
-  void didUpdateWidget(final CustomNavigatorView oldWidget) {
+  void didUpdateWidget(final _CustomNavigatorView oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.routeAndNavigatorSettings!.navigatorKey !=
         oldWidget.routeAndNavigatorSettings!.navigatorKey ||
