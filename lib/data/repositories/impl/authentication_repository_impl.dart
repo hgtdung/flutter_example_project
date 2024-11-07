@@ -14,5 +14,4 @@ class AuthenticationRepositoryImpl implements AuthenticationRepository {
     /// Mock data
       return ResultResponse.success(User(name: "Henry", gender: "male", age: 21));
   }
-
 }
