@@ -9,6 +9,7 @@ import 'dart:async';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_example_project/routes.dart';
+import 'package:flutter_example_project/utils/themes/app_theme.dart';
 
 import 'data/data_provider/api/network/exceptions/network_exceptions.dart';
 import 'di/service_locator.dart';
@@ -39,11 +40,12 @@ class FlutterApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      locale: Locale("es"),
+    return  MaterialApp(
+      locale: const Locale("es"),
       onGenerateRoute: Routes.onGenerateRoute,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
+      theme: TAppTheme.lightTheme,
     );
   }
 }

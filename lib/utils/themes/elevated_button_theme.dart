@@ -13,7 +13,7 @@ class TElevatedButtonTheme {
           padding:
               const EdgeInsets.only(left: 10, right: 10, bottom: 0, top: 0),
           shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(20))),
+              borderRadius: BorderRadius.all(Radius.circular(15))),
           textStyle: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w600,
@@ -28,7 +28,7 @@ class TElevatedButtonTheme {
           padding:
               const EdgeInsets.only(left: 10, right: 10, bottom: 7, top: 6),
           shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(20))),
+              borderRadius: BorderRadius.all(Radius.circular(15))),
           textStyle: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w400,

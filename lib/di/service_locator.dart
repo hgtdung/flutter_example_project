@@ -8,7 +8,7 @@ final serviceLocator = GetIt.instance;
 void setupServiceLocator() {
   setupAPIs();
 
-  setupViews();
-
   setupRepositories();
+
+  setupViews();
 }
