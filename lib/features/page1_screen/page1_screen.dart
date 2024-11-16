@@ -13,7 +13,7 @@ class Page1Screen extends StatefulWidget {
 
 class _Page1ScreenState extends State<Page1Screen> {
   final page1ScreenVM = serviceLocator<Page1VM>();
-
+  var panStartDetail;
   @override
   void initState() {
     // page1ScreenVM.changeText(2000);
