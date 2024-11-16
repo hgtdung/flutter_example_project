@@ -24,7 +24,8 @@ class _ClipingImageExampleState extends State<ClipingImageExample> {
               child: Container(
                 height: imageSize.height,
                 width: imageSize.width,
-                child: Image.asset("assets/images/TAEYEON.jpg", fit: BoxFit.fill,),
+                child: Image.asset("assets/images/corn_field.jpg", fit: BoxFit.fill,),
+                // child: Text("123"),
               ),
             ),
           ],
@@ -47,11 +48,20 @@ class ClippingClass extends CustomClipper<Path> {
 
     var path = Path();
     path.lineTo(startPoint.dx, startPoint.dy);
-    /// Create first Quadratic curve to the middle of the image
+    // Create first Quadratic curve to the middle of the image
     path.quadraticBezierTo(controlPoint1.dx, controlPoint1.dy , endPoint1.dx, endPoint1.dy );
-    /// Add second Quadratic curve from the middle to the offset(width, height - 50) of the image
+    // Add second Quadratic curve from the middle to the offset(width, height - 50) of the image
     path.quadraticBezierTo(controlPoint2.dx, controlPoint2.dy, endPoint2.dx, endPoint2.dy);
-    path.lineTo(size.width, 0);
+    
+    /// Create Cubic Bezier curve
+    /// The tangent at the inflection point will pass through the midpoint of the tangents at p(start) and p(end)
+    final cStartPoint = Offset(size.width, 0);
+    final cEndPoint = Offset(0, 100);
+    final cControlPoint1 = Offset(150, size.height - 150);
+    final cControlPoint2 = Offset(95, -15);
+    path.lineTo(cStartPoint.dx, cStartPoint.dy);
+    path.cubicTo(cControlPoint1.dx, cControlPoint1.dy,
+        cControlPoint2.dx, cControlPoint2.dy, cEndPoint.dx, cEndPoint.dy);
     return path;
   }
 

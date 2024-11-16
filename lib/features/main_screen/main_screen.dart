@@ -59,7 +59,7 @@ class _MainScreenState extends State<MainScreen> {
     return [
       // const Page1Screen(),
       const ClipingImageExample(),
-      // FindControlPointExample(),
+      // ClippingImageCurveExample(),
       const Page2Screen(),
       const Page3Screen()
     ];
