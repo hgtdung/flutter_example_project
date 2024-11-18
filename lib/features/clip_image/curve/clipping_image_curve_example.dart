@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class ClipingImageExample extends StatefulWidget {
-  const ClipingImageExample({super.key});
+class ClippingImageCurveExample extends StatefulWidget {
+  const ClippingImageCurveExample({super.key});
 
   @override
-  State<ClipingImageExample> createState() => _ClipingImageExampleState();
+  State<ClippingImageCurveExample> createState() => _ClippingImageCurveExampleState();
 }
 
-class _ClipingImageExampleState extends State<ClipingImageExample> {
+class _ClippingImageCurveExampleState extends State<ClippingImageCurveExample> {
   final Size imageSize = const Size(300, 400);
   @override
   Widget build(BuildContext context) {
@@ -20,7 +20,7 @@ class _ClipingImageExampleState extends State<ClipingImageExample> {
         child: Stack(
           children: [
             ClipPath(
-              clipper: ClippingClass(),
+              clipper: CurveClippingClass(),
               child: Container(
                 height: imageSize.height,
                 width: imageSize.width,
@@ -35,7 +35,7 @@ class _ClipingImageExampleState extends State<ClipingImageExample> {
   }
 }
 
-class ClippingClass extends CustomClipper<Path> {
+class CurveClippingClass extends CustomClipper<Path> {
   @override
   Path getClip(Size size) {
     /// Using quadratic Bezier curve

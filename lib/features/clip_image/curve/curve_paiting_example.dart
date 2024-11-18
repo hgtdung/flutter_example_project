@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class ClippingImageCurveExample extends StatelessWidget {
-  const ClippingImageCurveExample({super.key});
+class CurvePaintingExample extends StatelessWidget {
+  const CurvePaintingExample({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -10,7 +10,7 @@ class ClippingImageCurveExample extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.only(left: 10),
         child: CustomPaint(
-          painter: ControlPointPainter(),
+          painter: ClippingImageCurvePainter(),
           child: Container(),
         ),
       ),
@@ -18,7 +18,7 @@ class ClippingImageCurveExample extends StatelessWidget {
   }
 }
 
-class ControlPointPainter extends CustomPainter {
+class ClippingImageCurvePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     Size size = Size(300, 400);
@@ -50,7 +50,7 @@ class ControlPointPainter extends CustomPainter {
     canvas.drawPath(path, paint);
     //
     // // Visualize points
-    Paint pointPaint = Paint()..color = Colors.red;
+    Paint pointPaint = Paint()..color = Colors.green;
     canvas.drawCircle(controlPoint, 5, pointPaint); // Control point
     canvas.drawCircle(startPoint, 5, pointPaint); // Start point
     canvas.drawCircle(endPoint, 5, pointPaint); // End point
@@ -65,6 +65,7 @@ class ControlPointPainter extends CustomPainter {
     path.cubicTo(controlPoint1.dx, controlPoint1.dy,
         controlPoint2.dx, controlPoint2.dy, cEndPoint.dx, cEndPoint.dy);
 
+    pointPaint.color = Colors.red;
     canvas.drawPath(path, paint);
     canvas.drawCircle(cStartPoint, 5, pointPaint); // Control point
     canvas.drawCircle(cEndPoint, 5, pointPaint); // Control
@@ -74,8 +75,4 @@ class ControlPointPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
-void main() {
-  runApp(MaterialApp(home: ClippingImageCurveExample()));
 }
