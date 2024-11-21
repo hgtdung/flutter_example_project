@@ -5,6 +5,8 @@ import 'package:flutter_example_project/features/page2_screen/page2_screen.dart'
 import 'package:flutter_example_project/features/page3_screen/page3_screen.dart';
 import 'package:flutter_example_project/kwidget/kbottom_navigation/k_tab_view.lib.dart';
 
+import '../page_flip/page_flip.dart';
+
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
 
@@ -55,7 +57,7 @@ class _MainScreenState extends State<MainScreen> {
 
   List<Widget> _buildScreens() {
     return [
-      const Page1Screen(),
+      const PageFlipWidget(),
       const Page2Screen(),
       const Page3Screen()
     ];
