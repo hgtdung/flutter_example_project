@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_example_project/features/clip_image/curve/clip_shadow_patth.dart';
+import 'package:flutter_example_project/features/curves/curve/clip_shadow_patth.dart';
 
 class CurveUsingTool extends StatefulWidget {
   const CurveUsingTool({super.key});

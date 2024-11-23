@@ -1,9 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_example_project/features/clip_image/arc/arc_pating_example.dart';
-import 'package:flutter_example_project/features/clip_image/curve/curve_using_tool.dart';
-import 'package:flutter_example_project/features/clip_image/curve/curve_paiting_example.dart';
-import 'package:flutter_example_project/features/clip_image/curve/clipping_image_curve_example.dart';
+import 'package:flutter_example_project/features/curves/arc/arc_pating_example.dart';
+import 'package:flutter_example_project/features/curves/curve/curve_using_tool.dart';
 import 'package:flutter_example_project/features/page2_screen/page2_screen.dart';
 import 'package:flutter_example_project/features/page3_screen/page3_screen.dart';
 import 'package:flutter_example_project/kwidget/kbottom_navigation/k_tab_view.lib.dart';
@@ -59,7 +57,7 @@ class _MainScreenState extends State<MainScreen> {
   List<Widget> _buildScreens() {
     return [
       // const Page1Screen(),
-      const CurveUsingTool(),
+      const ArcPaintingExample(),
       // ClippingImageCurveExample(),
       const Page2Screen(),
       const Page3Screen()
