@@ -22,6 +22,15 @@ class _MainScreenState extends State<MainScreen> {
     _controller = KTabController(initialIndex: 0);
     super.initState();
   }
+
+  List<Widget> _buildScreens() {
+    return [
+      const PageFlipWidget(),
+      const Page2Screen(),
+      const Page3Screen()
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
     return KTabView(
@@ -55,13 +64,7 @@ class _MainScreenState extends State<MainScreen> {
   }
 
 
-  List<Widget> _buildScreens() {
-    return [
-      const PageFlipWidget(),
-      const Page2Screen(),
-      const Page3Screen()
-    ];
-  }
+
 List<KBottomNavBarItem> _navBarsItems() {
   return [
     KBottomNavBarItem(

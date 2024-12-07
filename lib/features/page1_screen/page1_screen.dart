@@ -25,6 +25,7 @@ class _Page1ScreenState extends State<Page1Screen> {
     return  ChangeNotifierProvider.value(
       value: page1ScreenVM,
       child: Scaffold(
+        appBar: AppBar(title: Text("Page 1"),),
         body: Center(
           child: SizedBox(
             height: 200,

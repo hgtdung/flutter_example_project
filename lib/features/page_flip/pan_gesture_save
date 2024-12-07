@@ -1,0 +1,75 @@
+      // body: Center(
+      //   child: Transform(
+      //     transform:
+      //     Matrix4.identity()
+      //     ..setEntry(3, 2, 0.001)
+      //     // ..rotateZ(pi / 2)
+      //     ,
+      //     child: Padding(
+      //       padding: const EdgeInsets.only(left: 30, top: 30),
+      //       child: GestureDetector(
+      //         onPanStart: (panDetailStart) {
+      //           setState(() {
+      //             startPoint = panDetailStart.localPosition;
+      //           });
+      //         },
+      //         onPanUpdate: (panUpdate) {
+      //           setState(() {
+      //             pointerPoint = panUpdate.localPosition;
+      //           });
+      //         },
+      //         onPanEnd: (panEnd) {},
+      //         child: Stack(
+      //           children: [
+      //             Container(
+      //               decoration: BoxDecoration(
+      //                   border: Border.all(width: 2, color: Colors.blue)),
+      //               height: boxSize.height,
+      //               width: boxSize.width,
+      //             ),
+      //             Positioned(
+      //                 left: startPoint.dx,
+      //                 top: startPoint.dy,
+      //                 child: Stack(
+      //                   clipBehavior: Clip.none,
+      //                   children: [
+      //                     Container(
+      //                       color: Colors.blue,
+      //                       alignment: Alignment.center,
+      //                       width: 2,
+      //                       height: 50,
+      //                     ),
+      //                     Positioned(
+      //                         top: 20,
+      //                         left: -4,
+      //                         child:
+      //                     Circle()
+      //                     ),
+      //                   ],
+      //                 )),
+      //             Positioned(
+      //                 left: pointerPoint.dx,
+      //                 top: pointerPoint.dy,
+      //                 child: Stack(
+      //                   clipBehavior: Clip.none,
+      //                   children: [
+      //                     Container(
+      //                       color: Colors.green,
+      //                       alignment: Alignment.center,
+      //                       width: 2,
+      //                       height: 50,
+      //                     ),
+      //                     Positioned(
+      //                         top: 20,
+      //                         left: -4,
+      //                         child:
+      //                         Circle()
+      //                     ),
+      //                   ],
+      //                 ))
+      //           ],
+      //         ),
+      //       ),
+      //     ),
+      //   ),
+      // ),
