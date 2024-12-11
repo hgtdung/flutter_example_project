@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_example_project/features/page1_screen/page1_screen.dart';
+import 'package:flutter_example_project/features/page_flip/2d_formular.dart';
 
 class PageFlipWidget extends StatefulWidget {
   const PageFlipWidget({super.key});
@@ -13,10 +14,10 @@ class PageFlipWidget extends StatefulWidget {
 
 class _PageFlipWidgetState extends State<PageFlipWidget>
     with SingleTickerProviderStateMixin {
-
   /// constants
-  late final Size screen_size ;
+  late final Size screen_size;
   late final Size paper_size;
+  final barrierLenght = 100;
 
   /// point for display
   Offset startPoint = Offset(0, 0);
@@ -24,15 +25,19 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
   Offset touchPoint = Offset(0, 0);
   Offset pointerPoint = Offset(0, 0);
 
-
-
   /// manage front layer
   Chopstick? chopstick;
   Offset? lastUpdatePoint = null;
   double? fontLayerWidth;
   Offset center = Offset(0, 0);
+  late Offset bottomCornerPoint;
+  late Offset topCornerPoint;
 
-
+  /// manage increase and rotate front layer
+  late final Offset topRightLimitation;
+  late final Offset topLeftLimitation;
+  late final Offset bottomLeftLimitation;
+  late final Offset bottomRightLimitation;
 
   @override
   void initState() {
@@ -43,7 +48,16 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
   void didChangeDependencies() {
     screen_size = MediaQuery.of(context).size;
     paper_size = Size(screen_size.width, 600);
-    // onPanUpdate(Offset(321.0, 292.7));
+    onPanUpdate(Offset(217.0, 177.7), test: false);
+    bottomCornerPoint = Offset(paper_size.width, paper_size.height);
+    topCornerPoint = Offset(paper_size.width, 0);
+
+    topRightLimitation = Offset(paper_size.width - 50, 0);
+    bottomLeftLimitation = Offset(50, paper_size.height);
+
+    bottomRightLimitation = Offset(paper_size.width - 50, paper_size.height);
+    topLeftLimitation = Offset(50, 0);
+
     super.didChangeDependencies();
   }
 
@@ -55,26 +69,26 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
     /// tim diem gap tren va diem gap duoi
     return Scaffold(
         body: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 60),
-              child: ElevatedButton(onPressed: () {
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(top: 60),
+          child: ElevatedButton(
+              onPressed: () {
                 testRotate();
-              }, child: Text("test rotate")),
-            ),
-            Spacer(),
-            Align(
-              alignment: Alignment.bottomLeft,
-                  child: GestureDetector(
+              },
+              child: Text("test rotate")),
+        ),
+        Spacer(),
+        Align(
+          alignment: Alignment.bottomLeft,
+          child: GestureDetector(
             onPanUpdate: (panUpdate) {
               // print("dsd ${panUpdate.localPosition}");
-
 
               onPanUpdate(panUpdate.localPosition);
               setState(() {
                 lastUpdatePoint = panUpdate.localPosition;
               });
-
             },
             onPanStart: (panStart) {
               setState(() {
@@ -95,24 +109,24 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
                       child: Column(
                         children: [
                           Text("Hello this is the title"),
-                          ElevatedButton(onPressed: () {
-                            var p = turnPageTransform(Offset3D(200, 150, 0));
-                            print("Point P ${p}");
-                            findFoldPoint(Size(200, 200));
-                          }, child: Text("test calculate func")),
+                          ElevatedButton(
+                              onPressed: () {
+                                var p =
+                                    turnPageTransform(Offset3D(200, 150, 0));
+                                print("Point P ${p}");
+                                findFoldPoint(Size(200, 200));
+                              },
+                              child: Text("test calculate func")),
                           Spacer(),
                           Text("Hello")
-
                         ],
                       ),
                     ),
                     Container(
-                      decoration: BoxDecoration(
-                        color: Colors.blueGrey
-                      ),
+                      decoration: BoxDecoration(color: Colors.blueGrey),
                       child: SizedBox(
                         height: 600,
-                      width: fontLayerWidth?? paper_size.width,
+                        width: fontLayerWidth ?? paper_size.width,
                         child: Align(
                           alignment: Alignment.topRight,
                           child: Container(
@@ -127,9 +141,8 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
                                     blurRadius: 6)
                               ],
                             ),
-
                             height: 600,
-                            width: chopstick?.range?? 0,
+                            width: chopstick?.range ?? 0,
                           ),
                         ),
                       ),
@@ -138,34 +151,24 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
                         left: startPoint.dx,
                         top: startPoint.dy,
                         child: Container(
-                        height: 10,
-                        width: 10,
-                        decoration:const BoxDecoration(
-                      shape: BoxShape.circle
-                          ,color: Colors.red
-                    ),)),
+                          height: 10,
+                          width: 10,
+                          decoration: const BoxDecoration(
+                              shape: BoxShape.circle, color: Colors.red),
+                        )),
                     Positioned(
                         left: touchPoint.dx,
                         top: touchPoint.dy,
                         child: Container(
                           height: 10,
                           width: 10,
-                          decoration:const BoxDecoration(
-                              shape: BoxShape.circle
-                              ,color: Colors.green
-                          ),)),
-                    Positioned(
-                        left: center.dx,
-                        top: center.dy,
-                        child: Container(
-                          height: 10,
-                          width: 10,
-                          decoration:const BoxDecoration(
-                              shape: BoxShape.circle
-                              ,color: Colors.brown
-                          ),)),
+                          decoration: const BoxDecoration(
+                              shape: BoxShape.circle, color: Colors.green),
+                        )),
+
                     // PageAnchor(chopstick: chopstick,),
                     ...getPageAnchor(chopstick),
+
                     /// vertical line
                     // Positioned(
                     //     left: lastUpdatePoint?.dx ??0,
@@ -189,10 +192,10 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
                 // painter: PageFlipPainter(),
               ),
             ),
-                  ),
-                ),
-          ],
-        ));
+          ),
+        ),
+      ],
+    ));
   }
 
   /// the statrt position => dy giam => rotate cung chieu kim dong ho.
@@ -200,164 +203,286 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
   void onPanStart(Offset localPosition) {
     // startPoint = localPosition;
     /// only accept touch near the edge of the right and the left
-    if(localPosition.dx < (paper_size.width - 40)) {
+    if (localPosition.dx < (paper_size.width - 40)) {
       return;
     }
     // chopstick ??= createChopstick(initialChopstickRange: 20);
     // calculateFontLayerWidth();
   }
 
-  void  onPanEnd(Offset localPosition) {
+  void onPanEnd(Offset localPosition) {
     chopstick = null;
   }
 
   Chopstick createChopstick(Offset localPosition) {
-
     var distanceFromRight = screen_size.width - localPosition.dx;
-    var chopstickRange = (distanceFromRight / 2)  - 10;
+    var chopstickRange = (distanceFromRight / 2) - 10;
 
     var topLeft = Offset(localPosition.dx, 0);
-    var topRight = Offset(localPosition.dx  + chopstickRange, 0);
+    var topRight = Offset(localPosition.dx + chopstickRange, 0);
     var bottomLeft = Offset(localPosition.dx, topLeft.dy + paper_size.height);
-    var bottomRight = Offset(localPosition.dx + chopstickRange, topRight.dy + paper_size.height);
+    var bottomRight = Offset(
+        localPosition.dx + chopstickRange, topRight.dy + paper_size.height);
 
+    Offset center =
+        Offset(localPosition.dx + chopstickRange / 2, paper_size.height / 2);
 
-    Offset center = Offset(localPosition.dx + chopstickRange / 2 , paper_size.height / 2);
     /// just for show ui
     this.center = center;
 
-    return  Chopstick(paper_size,
-        topLeft,
-        topRight, bottomLeft, bottomRight, center, chopstickRange);
+    return Chopstick(paper_size, topLeft, topRight, bottomLeft, bottomRight,
+        center, chopstickRange, 0);
   }
-
 
   void calculateFontLayerWidth() {
     fontLayerWidth = screen_size.width - chopstick!.range;
   }
 
-  void onPanUpdate(Offset localPosition) {
+  /// chuyển xoay tới mép, chỉ xoay
+  ///  1 tay cố định, tay còn lại kéo => vừa tăng kích thước vừa xoay
+  ///  điểm cổ dịnh là vị trí tay
+  ///
+  /// làm sao để mô phỏng điểm gấp
+  ///
+  /// // mô phỏng đoạn gấp chính xác hơn, xoay đó là xoay
 
-
+  void onPanUpdate(Offset localPosition, {bool? test}) {
+    /// just for display UI
     touchPoint = localPosition;
-    if(paper_size.width - localPosition.dx < 22) {
+
+    if (paper_size.width - localPosition.dx < 22) {
       return;
     }
-    if(chopstick == null) {
-      /// just for display UI
+
+    if (chopstick == null) {
       startPoint = localPosition;
-
-      ///initial chopstick
-     chopstick = createChopstick(localPosition);
+      chopstick = createChopstick(localPosition);
     }
-
-    if(paper_size.width - touchPoint.dx < 10) {
-      return;
-    }
-
-    // return;
-    var chopstickRadius = 0;
-    /// offset from right
-
-    var distanceFromRight = screen_size.width - localPosition.dx;
 
     chopstick!.updateRange(localPosition, radius: 10);
 
+    fontLayerWidth =
+        localPosition.dx + (paper_size.width - localPosition.dx) / 2 - 10;
+
     /// calculate rotate angle, compare last update point with current point
-    // var degree = 0.0;
-    // if(localPosition.dy != lastUpdatePoint.dy) {
-    //   var distance = lastUpdatePoint.dy - localPosition.dy;
-    //   degree = distance * 1.5;
+    var dy = startPoint.dy - touchPoint.dy;
+    var degree = 0.0;
+    degree = dy;
+
+    // var maximumAngle = findRotateLimitation(chopstick!);
+    //
+    if (degree == 0) {
+      return;
+    }
+
+    // ///rotate along clockwise
+    // var rotatedChopstick = chopstick!.copyWith()..rotateBy(degree);
+    //
+    // if(rotatedChopstick.topRight.dx >= topRightLimitation.dx) {
+    //   rotatedChopstick = chopstick!.copyWith()..rotateBy(degree, pivot: touchPoint);
+    //   if(rotatedChopstick.bottomRight.dx <= bottomLeftLimitation.dx) {
+    //     /// translate chopstick bottom left, then rotate
+    //     var offset =  (bottomLeftLimitation.dx - chopstick!.bottomRight.dx).abs();
+    //     chopstick!.translateXby(offset);
+    //     rotatedChopstick = chopstick!.copyWith()..rotateBy(degree, pivot: bottomLeftLimitation);
+    //
+    //     /// if reach maximum bottom left corner, rotate to limit point
+    //     if(rotatedChopstick.topRight.dy > bottomCornerPoint.dy &&
+    //         (rotatedChopstick.topRight.dy - bottomCornerPoint.dy) > 50) {
+    //       chopstick!.rotateBy(54.666656494140625, pivot: bottomLeftLimitation);
+    //     } else {
+    //       chopstick!.rotateBy(degree, pivot: bottomLeftLimitation);
+    //     }
+    //   } else {
+    //     chopstick = rotatedChopstick;
+    //   }
     // }
-
-    // pageCurlWidth = screenSize.width - chopstickRadius - chopstickRange;
-    // fontLayerWidth = screen_size.width - chopstick!.range;
-    fontLayerWidth =  localPosition.dx + (paper_size.width - localPosition.dx) / 2 - 10;
-
-
-
-    /// handle this chopstick do not create chopstick
-    /// handle chopstick range => update chopstcik range.
-    /// find the symetrical point of the corner.
-
-    // if(degree != 0 ) {
-      // chopstick!.rotateBy(degree);
+    //
+    // else {
+    //   chopstick = rotatedChopstick;
     // }
+    if(degree > 0) {
+      getClockwiseChopstick(degree);
+    }  else {
+      getUClockwiseChopstick(degree);
+    }
 
+
+    /// center is the center, tới điểm giới hạn trên, thì tâm xoay chuyển thành touch point
+    /// increase the range
+
+    /// find corner point
+    /// top corner point
+    var chopstickRadius = 25;
+    bottomCornerPoint = findSymmetricPoint(
+        Offset(paper_size.width, -paper_size.height),
+        Offset(chopstick!.bottomRight.dx + chopstickRadius,
+            -chopstick!.bottomRight.dy),
+        Offset(
+            chopstick!.topRight.dx + chopstickRadius, -chopstick!.topRight.dy));
+
+    /// revert to dart coordinate
+    bottomCornerPoint = Offset(bottomCornerPoint.dx, -bottomCornerPoint.dy);
+
+    /// bottom corner point
+    topCornerPoint = findSymmetricPoint(
+        Offset(paper_size.width, 0),
+        Offset(chopstick!.bottomRight.dx + chopstickRadius,
+            -chopstick!.bottomRight.dy),
+        Offset(
+            chopstick!.topRight.dx + chopstickRadius, -chopstick!.topRight.dy));
+
+    /// revert to dart coordinate
+    topCornerPoint = Offset(topCornerPoint.dx, -topCornerPoint.dy);
 
     setState(() {});
   }
 
+  void getClockwiseChopstick(double degree) {
+    /// Rotate along clockwise
+    var newChopstick = chopstick!.copyWith()..rotateBy(degree);
+    /// Reach top right limitation, move center to touch point
+    if (newChopstick.topRight.dx >= topRightLimitation.dx) {
+      var newPivotChopstick = chopstick!.copyWith()
+        ..rotateBy(degree, pivot: touchPoint);
+
+      /// Reach to bottom left limitation, translate to that point, then rotate around that point
+      if (newPivotChopstick.bottomRight.dx <= bottomLeftLimitation.dx) {
+        var offset =
+            (bottomLeftLimitation.dx - chopstick!.bottomRight.dx).abs();
+        chopstick!.translateXby(offset);
+        var offsetChopstick = chopstick!.copyWith()
+          ..rotateBy(degree, pivot: bottomLeftLimitation);
+
+        /// Corner point below the bottom right point
+        if (offsetChopstick.topRight.dy > bottomCornerPoint.dy &&
+            (offsetChopstick.topRight.dy - bottomCornerPoint.dy) > 50) {
+          chopstick!.rotateBy(54.666656494140625, pivot: bottomLeftLimitation);
+        } else {
+          chopstick!.rotateBy(degree, pivot: bottomLeftLimitation);
+        }
+      } else {
+        chopstick = newPivotChopstick;
+      }
+    } else {
+      chopstick = newChopstick;
+    }
+  }
+
+  void getUClockwiseChopstick(double degree) {
+    /// Mark: under park, rotate along anticlockwise
+    var newChopstick = chopstick!.copyWith()..rotateBy(degree);
+    if(newChopstick.bottomRight.dx >= bottomRightLimitation.dx) {
+      var newPivotChopstick = chopstick!.copyWith()..rotateBy(degree, pivot: touchPoint);
+      /// Reach to bottom right limitation, translate to that point, then rotate around that point
+      if(newPivotChopstick.topRight.dx <= topLeftLimitation.dx) {
+
+        var offset =  (topLeftLimitation.dx - chopstick!.topRight.dx).abs();
+        chopstick!.translateXby(offset);
+        var offsetChopstick = chopstick!.copyWith()..rotateBy(degree, pivot: topLeftLimitation);
+
+        /// Corner point below the bottom right point
+        if(offsetChopstick.bottomRight.dy < topCornerPoint.dy &&
+            (topCornerPoint.dy - offsetChopstick.topRight.dy ) > 50) {
+          chopstick!.rotateBy(-54.666656494140625, pivot: topLeftLimitation);
+        } else {
+          chopstick!.rotateBy(degree, pivot: topLeftLimitation);
+        }
+      } else {
+        chopstick = newPivotChopstick;
+      }
+    }
+    else {
+      chopstick = newChopstick;
+    }
+  }
+
+  double findRotateLimitation(Chopstick chopstick) {
+    var rawChopstick = chopstick.copyWith()..rotateBy(-chopstick.angle);
+    var maxBottomRightPoint = Offset(200, -paper_size.height);
+
+    var maximumAngle = TwoDFormula.angleBetweenLines(
+        chopstick.center.dx,
+        -chopstick.center.dy,
+        maxBottomRightPoint.dx,
+        maxBottomRightPoint.dy,
+        rawChopstick.bottomRight.dx,
+        -rawChopstick.bottomRight.dy,
+        rawChopstick.topRight.dx,
+        -rawChopstick.topRight.dy);
+    print("maximum angle $maximumAngle");
+    return maximumAngle * pi / 180;
+  }
+
   void testRotate() {
     setState(() {
-      chopstick!.rotateBy(5);
+      // chopstick!.rotateBy(5);
+      var offset = (bottomLeftLimitation.dx - chopstick!.bottomRight.dx).abs();
+      print("offset $offset");
+      chopstick = chopstick!.copyWith()..translateXby(offset);
+      chopstick!.rotateBy(35, pivot: bottomLeftLimitation);
     });
   }
 
-  void findBottomLeftCornerPoint(Chopstick chopstick) {
-    // var bottomRightCornerPoint = symmetricPointWithLine()
-  }
+  /// Hàm tìm điểm đối xứng của [point] qua đường thẳng xác định bởi [linePoint1] và [linePoint2].
+  Offset findSymmetricPoint(
+      Offset point, Offset linePoint1, Offset linePoint2) {
+    // Tọa độ của đường thẳng
+    double x1 = linePoint1.dx, y1 = linePoint1.dy;
+    double x2 = linePoint2.dx, y2 = linePoint2.dy;
+    double px = point.dx, py = point.dy;
 
-  Offset symmetricPointWithLine(
-      double px, double py, double x1, double y1, double x2, double y2) {
-    // Calculate the coefficients of the line equation Ax + By + C = 0
+    // Tính hệ số A, B, C của đường thẳng Ax + By + C = 0
     double A = y2 - y1;
     double B = x1 - x2;
     double C = x2 * y1 - x1 * y2;
 
-    // Denominator for projection calculations
-    final double denominator = A * A + B * B;
+    // Tính điểm đối xứng
+    double denominator = A * A + B * B;
+    double xSymmetric = px - 2 * A * (A * px + B * py + C) / denominator;
+    double ySymmetric = py - 2 * B * (A * px + B * py + C) / denominator;
 
-    // Calculate the projection point Q(x_q, y_q)
-    final double xQ = (B * (B * px - A * py) - A * C) / denominator;
-    final double yQ = (A * (-B * px + A * py) - B * C) / denominator;
-
-    // Calculate the symmetric point
-    final double xSym = 2 * xQ - px;
-    final double ySym = 2 * yQ - py;
-
-    return Offset(xSym, ySym);
+    return Offset(xSymmetric, ySymmetric);
   }
 
   Offset3D turnPageTransform(Offset3D vi) {
-
     // Get the current input vertex.
     var A = -1;
     var theta = 45;
     var rho = 0;
 
     // Radius of the circle circumscribed by vertex (vi.x, vi.y) around A on the x-y plane
-    var R     = sqrt(vi.x * vi.x + pow(vi.y - A, 2));
+    var R = sqrt(vi.x * vi.x + pow(vi.y - A, 2));
     // Now get the radius of the cone cross section intersected by our vertex in 3D space.
-    var r     = R * sin(theta);
+    var r = R * sin(theta);
     // Angle subtended by arc |ST| on the cone cross section.
-    var beta  = asin(vi.x / R) / sin(theta);
+    var beta = asin(vi.x / R) / sin(theta);
 
     // *** MAGIC!!! ***
     Offset3D v1 = Offset3D(0, 0, 0);
     Offset3D v0 = Offset3D(0, 0, 0);
-    v1.x  = r * sin(beta);
-    v1.y  = R + A - r * (1 - cos(beta)) * sin(theta);
-    v1.z  = r * (1 - cos(beta)) * cos(theta);
+    v1.x = r * sin(beta);
+    v1.y = R + A - r * (1 - cos(beta)) * sin(theta);
+    v1.z = r * (1 - cos(beta)) * cos(theta);
     // Apply a basic rotation transform around the y axis to rotate the curled page.
     // These two steps could be combined through simple substitution, but are left
     // separate to keep the math simple for debugging and illustrative purposes.
 
     v0.x = (v1.x * cos(rho) - v1.z * sin(rho));
-    v0.y =  v1.y;
+    v0.y = v1.y;
     v0.z = (v1.x * sin(rho) + v1.z * cos(rho));
     return v0;
-
-
   }
 
   Offset3D? findFoldPoint(Size size) {
     for (var i = size.width; i > 0; i--) {
-      var bottomPoint = Offset3D(i.toDouble(), 0,0);
+      var bottomPoint = Offset3D(i.toDouble(), 0, 0);
       var transformedPoint = turnPageTransform(bottomPoint);
-      var roundTransformedPoint = Offset3D(transformedPoint.x.floor().toDouble(),
-          transformedPoint.y.floor().toDouble(), transformedPoint.z);
-      if(roundTransformedPoint.z == 0.0 && roundTransformedPoint.y == 0.0) {
+      var roundTransformedPoint = Offset3D(
+          transformedPoint.x.floor().toDouble(),
+          transformedPoint.y.floor().toDouble(),
+          transformedPoint.z);
+      if (roundTransformedPoint.z == 0.0 && roundTransformedPoint.y == 0.0) {
         print("point fold found ${transformedPoint}");
         return transformedPoint;
       }
@@ -377,40 +502,65 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
           child: Container(
             height: 10,
             width: 10,
-            decoration:const BoxDecoration(
-                shape: BoxShape.circle
-                ,color: Colors.brown
-            ),)),
+            decoration: const BoxDecoration(
+                shape: BoxShape.circle, color: Colors.brown),
+          )),
       Positioned(
           left: chopstick.topRight.dx - 5,
           top: chopstick.topRight.dy - 5,
           child: Container(
             height: 10,
             width: 10,
-            decoration:const BoxDecoration(
-                shape: BoxShape.circle
-                ,color: Colors.brown
-            ),)),
+            decoration: const BoxDecoration(
+                shape: BoxShape.circle, color: Colors.brown),
+          )),
       Positioned(
           left: chopstick.bottomRight.dx - 5,
           top: chopstick.bottomRight.dy - 5,
           child: Container(
             height: 10,
             width: 10,
-            decoration:const BoxDecoration(
-                shape: BoxShape.circle
-                ,color: Colors.brown
-            ),)),
+            decoration: const BoxDecoration(
+                shape: BoxShape.circle, color: Colors.brown),
+          )),
       Positioned(
           left: chopstick.bottomLeft.dx - 5,
           top: chopstick.bottomLeft.dy - 5,
           child: Container(
             height: 10,
             width: 10,
-            decoration:const BoxDecoration(
-                shape: BoxShape.circle
-                ,color: Colors.brown
-            ),)),
+            decoration: const BoxDecoration(
+                shape: BoxShape.circle, color: Colors.brown),
+          )),
+      Positioned(
+          left: chopstick.center.dx - 5,
+          top: chopstick.center.dy - 5,
+          child: Container(
+            height: 10,
+            width: 10,
+            decoration: const BoxDecoration(
+                shape: BoxShape.circle, color: Colors.brown),
+          )),
+      Positioned(
+          left: bottomCornerPoint.dx - 5,
+          top: bottomCornerPoint.dy - 5,
+          child: Container(
+            height: 10,
+            width: 10,
+            child: Text("b"),
+            decoration: const BoxDecoration(
+                shape: BoxShape.circle, color: Colors.brown),
+          )),
+      Positioned(
+          left: topCornerPoint.dx - 5,
+          top: topCornerPoint.dy - 5,
+          child: Container(
+            height: 10,
+            width: 10,
+            child: Text("b"),
+            decoration: const BoxDecoration(
+                shape: BoxShape.circle, color: Colors.brown),
+          )),
     ];
   }
 }
@@ -424,57 +574,51 @@ class PageAnchor extends StatelessWidget {
     return Stack(
       children: [
         Positioned(
-            left: chopstick?.topLeft.dx??0,
-            top: chopstick?.topLeft.dy??0,
+            left: chopstick?.topLeft.dx ?? 0,
+            top: chopstick?.topLeft.dy ?? 0,
             child: Container(
               height: 10,
               width: 10,
-              decoration:const BoxDecoration(
-                  shape: BoxShape.circle
-                  ,color: Colors.brown
-              ),)),
+              decoration: const BoxDecoration(
+                  shape: BoxShape.circle, color: Colors.brown),
+            )),
         Positioned(
-            left: chopstick?.topRight.dx??0,
-            top: chopstick?.topRight.dy??0,
+            left: chopstick?.topRight.dx ?? 0,
+            top: chopstick?.topRight.dy ?? 0,
             child: Container(
               height: 10,
               width: 10,
-              decoration:const BoxDecoration(
-                  shape: BoxShape.circle
-                  ,color: Colors.brown
-              ),)),
+              decoration: const BoxDecoration(
+                  shape: BoxShape.circle, color: Colors.brown),
+            )),
         Positioned(
-            left: chopstick?.bottomRight.dx??0,
-            top: chopstick?.bottomRight.dy??0,
+            left: chopstick?.bottomRight.dx ?? 0,
+            top: chopstick?.bottomRight.dy ?? 0,
             child: Container(
               height: 10,
               width: 10,
-              decoration:const BoxDecoration(
-                  shape: BoxShape.circle
-                  ,color: Colors.brown
-              ),)),
+              decoration: const BoxDecoration(
+                  shape: BoxShape.circle, color: Colors.brown),
+            )),
         Positioned(
-            left: chopstick?.bottomLeft.dx??0,
-            top: chopstick?.bottomLeft.dy??0,
+            left: chopstick?.bottomLeft.dx ?? 0,
+            top: chopstick?.bottomLeft.dy ?? 0,
             child: Container(
               height: 10,
               width: 10,
-              decoration:const BoxDecoration(
-                  shape: BoxShape.circle
-                  ,color: Colors.brown
-              ),)),
+              decoration: const BoxDecoration(
+                  shape: BoxShape.circle, color: Colors.brown),
+            )),
       ],
     );
   }
 }
 
-
 class VerticesDraw extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-        ..color = Colors.red;
-    
+    final paint = Paint()..color = Colors.red;
+
     final vertices = Vertices(VertexMode.triangles, [
       Offset(0, 0),
       Offset(20, 0),
@@ -488,7 +632,6 @@ class VerticesDraw extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) {
     return true;
   }
-
 }
 
 class PageFlipPainter extends CustomPainter {
@@ -515,8 +658,6 @@ class PageFlipPainter extends CustomPainter {
         Offset(pointerPoint.dx, size.height - curvePerpDistance);
     final bottomFoldPointEnd =
         Offset(pointerPoint.dx - curvePerpDistance, size.height);
-
-
 
     path.moveTo(0, size.height);
     path.lineTo(0, 0);
@@ -564,9 +705,8 @@ class PageFlipPainter extends CustomPainter {
       // path.moveTo(rightIntersection.dx, rightIntersection.dy);
       // path.lineTo(bottomIntersection.dx, bottomIntersection.dy);
 
-
       final linePaint = Paint()
-        ..color = Color(0xffF5DEB3)// Line color
+        ..color = Color(0xffF5DEB3) // Line color
         ..strokeWidth = 3.0 // Line thickness
         ..style = PaintingStyle.stroke;
 
@@ -650,7 +790,6 @@ class PageFlipPainter extends CustomPainter {
 
     return null; // Không tìm thấy
   }
-
 }
 
 class Circle extends StatelessWidget {
@@ -692,13 +831,18 @@ class Chopstick {
   Offset bottomRight;
   Offset center;
   double range;
-  Chopstick(this.paperSize, this.topLeft, this.topRight, this.bottomLeft, this.bottomRight, this.center,
-      this.range);
+  double angle;
+  Chopstick(this.paperSize, this.topLeft, this.topRight, this.bottomLeft,
+      this.bottomRight, this.center, this.range, this.angle);
 
-  rotateBy(double degree) {
+  rotateBy(double degree,
 
-    var centerOxy =  Offset(center.dx, -center.dy);
-    var topLeftOxy =  Offset(topLeft.dx, -topLeft.dy);
+      /// if != null, rotate around this point
+      {Offset? pivot}) {
+    var centerOxy = pivot != null
+        ? Offset(pivot.dx, -pivot.dy)
+        : Offset(center.dx, -center.dy);
+    var topLeftOxy = Offset(topLeft.dx, -topLeft.dy);
     var topRightOxy = Offset(topRight.dx, -topRight.dy);
     var bottomLeftOxy = Offset(bottomLeft.dx, -bottomLeft.dy);
     var bottomRightOxy = Offset(bottomRight.dx, -bottomRight.dy);
@@ -711,19 +855,20 @@ class Chopstick {
 
     /// MARK: top
     // /// Find intersection between the right chopstick line (topRight and bottomRight) and top (Ox)
-    var topLeadingIntersection =  findIntersectionWithOX(bottomLeftOxy, topLeftOxy);
-    var topTrailingIntersection = findIntersectionWithOX(bottomRightOxy, topRightOxy);
-    print("before top leading intersection${topTrailingIntersection}");
+    var topLeadingIntersection =
+        findIntersectionWithOX(bottomLeftOxy, topLeftOxy);
+    var topTrailingIntersection =
+        findIntersectionWithOX(bottomRightOxy, topRightOxy);
 
     /// if overflow find intersection with vertical line zx = paperSize.width
-    if(topLeadingIntersection!.dx > paperSize.width) {
-      topLeadingIntersection =  findIntersectionWithVerticalLine(bottomLeftOxy, topLeftOxy, paperSize.width);
-      print("top leeading intersection ${topLeadingIntersection}");
+    if (topLeadingIntersection!.dx > paperSize.width) {
+      topLeadingIntersection = findIntersectionWithVerticalLine(
+          bottomLeftOxy, topLeftOxy, paperSize.width);
     }
 
-    if(topTrailingIntersection!.dx > paperSize.width) {
-      topTrailingIntersection = findIntersectionWithVerticalLine(bottomRightOxy, topRightOxy, paperSize.width);
-      print("top trailidng intersection ${topTrailingIntersection}");
+    if (topTrailingIntersection!.dx > paperSize.width) {
+      topTrailingIntersection = findIntersectionWithVerticalLine(
+          bottomRightOxy, topRightOxy, paperSize.width);
     }
 
     /// revert to dart coordinate
@@ -731,29 +876,29 @@ class Chopstick {
     topRight = Offset(topTrailingIntersection!.dx, -topTrailingIntersection.dy);
 
     ///MARK: bottom
-    var bottomLeadingIntersection =  findIntersectionWithHorizontalLine(bottomLeftOxy, topLeftOxy, -paperSize.height);
-    var bottomTrailingIntersection = findIntersectionWithHorizontalLine(bottomRightOxy, topRightOxy, -paperSize.height);
+    var bottomLeadingIntersection = findIntersectionWithHorizontalLine(
+        bottomLeftOxy, topLeftOxy, -paperSize.height);
+    var bottomTrailingIntersection = findIntersectionWithHorizontalLine(
+        bottomRightOxy, topRightOxy, -paperSize.height);
 
     /// if overflow find intersection with vertical line x = paperSize.width
-    if(bottomLeadingIntersection!.dx > paperSize.width) {
-      bottomLeadingIntersection =  findIntersectionWithVerticalLine(bottomLeftOxy, topLeftOxy, paperSize.width);
+    if (bottomLeadingIntersection!.dx > paperSize.width) {
+      bottomLeadingIntersection = findIntersectionWithVerticalLine(
+          bottomLeftOxy, topLeftOxy, paperSize.width);
     }
 
-    if(bottomTrailingIntersection!.dx > paperSize.width) {
-      bottomTrailingIntersection = findIntersectionWithVerticalLine(bottomRightOxy, topRightOxy, paperSize.width);
+    if (bottomTrailingIntersection!.dx > paperSize.width) {
+      bottomTrailingIntersection = findIntersectionWithVerticalLine(
+          bottomRightOxy, topRightOxy, paperSize.width);
     }
 
     /// revert to dart coordinate
-    bottomLeft = Offset(bottomLeadingIntersection!.dx, -bottomLeadingIntersection.dy);
-    bottomRight =  Offset(bottomTrailingIntersection!.dx, -bottomTrailingIntersection.dy);
+    bottomLeft =
+        Offset(bottomLeadingIntersection!.dx, -bottomLeadingIntersection.dy);
+    bottomRight =
+        Offset(bottomTrailingIntersection!.dx, -bottomTrailingIntersection.dy);
 
-
-    print("top left ${topLeft}");
-    print("top right ${topRight}");
-
-
-    // var bottomIntersection =  findIntersectionWithHorizontalLine(Offset(bottomRight.dx, -bottomRight.dy), topRight, -paperSize.height);
-    // bottomRight = bottomIntersection!;
+    angle = degree;
   }
 
   Offset? findIntersectionWithOX(Offset p1, Offset p2) {
@@ -787,7 +932,6 @@ class Chopstick {
     // Return the intersection point as an Offset (x, M)
     return Offset(x, M);
   }
-
 
   Offset? findIntersectionWithVerticalLine(Offset p1, Offset p2, double V) {
     // Check if the line is vertical (parallel to the y-axis)
@@ -824,17 +968,46 @@ class Chopstick {
 
   updateRange(Offset localPosition, {required double radius}) {
     var distanceFromRight = this.paperSize.width - localPosition.dx;
-    var range =  (distanceFromRight/ 2) - radius;
+    var range = (distanceFromRight / 2) - radius;
 
     topLeft = Offset(localPosition.dx, 0);
-    topRight = Offset(localPosition.dx  + range, 0);
+    topRight = Offset(localPosition.dx + range, 0);
     bottomLeft = Offset(localPosition.dx, topLeft.dy + paperSize.height);
-    bottomRight = Offset(localPosition.dx + range, topRight.dy + paperSize.height);
+    bottomRight =
+        Offset(localPosition.dx + range, topRight.dy + paperSize.height);
+    center = Offset(localPosition.dx + range / 2, paperSize.height / 2);
 
     this.range = range;
   }
 
   /// normally user will do two behavior at the same time
+  ///
+  Chopstick copyWith(
+      {Size? paperSize,
+      Offset? topLeft,
+      Offset? topRight,
+      Offset? bottomLeft,
+      Offset? bottomRight,
+      Offset? center,
+      double? range,
+      double? angle}) {
+    return Chopstick(
+        paperSize ?? this.paperSize,
+        topLeft ?? this.topLeft,
+        topRight ?? this.topRight,
+        bottomLeft ?? this.bottomLeft,
+        bottomRight ?? this.bottomRight,
+        center ?? this.center,
+        range ?? this.range,
+        angle ?? this.angle);
+  }
+
+  void translateXby(double offset) {
+    topRight = Offset(topRight.dx - offset, topRight.dy);
+    topLeft = Offset(topLeft.dx - offset, topLeft.dy);
+    bottomRight = Offset(bottomRight.dx - offset, bottomRight.dy);
+    bottomLeft = Offset(bottomLeft.dx - offset, bottomLeft.dy);
+  }
 }
 
 Offset rotateAround(Offset pointA, Offset pivotB, double angle) {
@@ -844,15 +1017,16 @@ Offset rotateAround(Offset pointA, Offset pivotB, double angle) {
   final double translatedY = pointA.dy - pivotB.dy;
 
   // Perform rotation
-  final double rotatedX = translatedX * cos(angleRadian) - translatedY * sin(angleRadian);
+  final double rotatedX =
+      translatedX * cos(angleRadian) - translatedY * sin(angleRadian);
 
-
-  final double rotatedY = translatedX * sin(angleRadian) + translatedY * cos(angleRadian);
+  final double rotatedY =
+      translatedX * sin(angleRadian) + translatedY * cos(angleRadian);
 
   // Translate back to the original position relative to B
   final double finalX = rotatedX + pivotB.dx;
   final double finalY = rotatedY + pivotB.dy;
 
-  var finalResult =  Offset(finalX, finalY);
+  var finalResult = Offset(finalX, finalY);
   return finalResult;
 }
