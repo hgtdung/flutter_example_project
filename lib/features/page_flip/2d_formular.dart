@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:ui';
 
 class TwoDFormula {
   static double angleBetweenLines(
@@ -30,5 +31,70 @@ class TwoDFormula {
 
     // Return the angle in degrees
     return acos(cosTheta) * (180 / pi);
+  }
+
+  static Offset? findIntersectionWithOX(Offset p1, Offset p2) {
+    if (p1.dx == p2.dx) {
+      return null;
+    }
+
+    final double m = (p2.dy - p1.dy) / (p2.dx - p1.dx);
+    final double c = p1.dy - m * p1.dx;
+
+    final double x = -c / m;
+
+    return Offset(x, 0);
+  }
+
+  static Offset? findIntersectionWithHorizontalLine(Offset p1, Offset p2, double M) {
+    // Check if the line is vertical (parallel to the y-axis)
+    if (p1.dx == p2.dx) {
+      return null; // No intersection with horizontal line, because the line is vertical
+    }
+
+    // Calculate the slope (m) of the line
+    final double m = (p2.dy - p1.dy) / (p2.dx - p1.dx);
+
+    // Calculate the y-intercept (c) using one of the points
+    final double c = p1.dy - m * p1.dx;
+
+    // Find the x-coordinate where the line intersects the horizontal line y = M
+    final double x = (M - c) / m;
+
+    // Return the intersection point as an Offset (x, M)
+    return Offset(x, M);
+  }
+
+  static Offset? findIntersectionWithVerticalLine(Offset p1, Offset p2, double V) {
+    // Check if the line is vertical (parallel to the y-axis)
+    if (p1.dx == p2.dx) {
+      return null; // No intersection with vertical line, because the line is vertical
+    }
+
+    // Calculate the slope (m) of the line
+    final double m = (p2.dy - p1.dy) / (p2.dx - p1.dx);
+
+    // Calculate the y-intercept (c) using one of the points
+    final double c = p1.dy - m * p1.dx;
+
+    // Find the y-coordinate where the line intersects the vertical line x = V
+    final double y = m * V + c;
+
+    // Return the intersection point as an Offset (V, y)
+    return Offset(V, y);
+  }
+
+  static Offset? findIntersectionWithOY(Offset p1, Offset p2) {
+    // Check if the line is vertical
+    if (p1.dx == p2.dx) {
+      return null; // No intersection with OY (vertical line)
+    }
+
+    // Calculate slope (m) and intercept (c)
+    final double m = (p2.dy - p1.dy) / (p2.dx - p1.dx);
+    final double c = p1.dy - m * p1.dx;
+
+    // Intersection with OY occurs at x = 0
+    return Offset(0, c);
   }
 }
