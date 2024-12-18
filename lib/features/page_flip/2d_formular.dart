@@ -97,4 +97,25 @@ class TwoDFormula {
     // Intersection with OY occurs at x = 0
     return Offset(0, c);
   }
+
+  /// Hàm tìm điểm đối xứng của [point] qua đường thẳng xác định bởi [linePoint1] và [linePoint2].
+  static Offset findSymmetricPoint(
+      Offset point, Offset linePoint1, Offset linePoint2) {
+    // Tọa độ của đường thẳng
+    double x1 = linePoint1.dx, y1 = linePoint1.dy;
+    double x2 = linePoint2.dx, y2 = linePoint2.dy;
+    double px = point.dx, py = point.dy;
+
+    // Tính hệ số A, B, C của đường thẳng Ax + By + C = 0
+    double A = y2 - y1;
+    double B = x1 - x2;
+    double C = x2 * y1 - x1 * y2;
+
+    // Tính điểm đối xứng
+    double denominator = A * A + B * B;
+    double xSymmetric = px - 2 * A * (A * px + B * py + C) / denominator;
+    double ySymmetric = py - 2 * B * (A * px + B * py + C) / denominator;
+
+    return Offset(xSymmetric, ySymmetric);
+  }
 }

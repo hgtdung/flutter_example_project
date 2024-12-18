@@ -32,10 +32,8 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
   Offset center = Offset(0, 0);
 
   late Offset bottomCornerPoint;
-  late Offset supportBottomCornerPoint;
-  late Offset crossTopCornerPoint;
-
   late Offset topCornerPoint;
+
   Offset? bottomFoldPoint;
   Offset? topFoldPoint;
 
@@ -57,8 +55,6 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
     onPanUpdate(Offset(217.0, 177.7), test: false);
 
     bottomCornerPoint = Offset(paper_size.width, paper_size.height);
-    supportBottomCornerPoint = Offset(0, 0);
-    crossTopCornerPoint = Offset(0, 0);
 
     topCornerPoint = Offset(paper_size.width, 0);
 
@@ -239,11 +235,15 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
     Offset center =
         Offset(localPosition.dx + chopstickRange / 2, paper_size.height / 2);
 
+    Offset centerTop = Offset(topLeft.dx + chopstickRange / 2, 0);
+    Offset centerBottom =
+        Offset(topLeft.dx + chopstickRange / 2, paper_size.height);
+
     /// just for show ui
     this.center = center;
 
     return Chopstick(paper_size, topLeft, topRight, bottomLeft, bottomRight,
-        center, chopstickRange, 0);
+        center, centerTop, centerBottom, chopstickRange, 0);
   }
 
   void calculateFontLayerWidth() {
@@ -305,101 +305,93 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
         isTop: true);
 
     /// dy chay tu 0 - 70
-    var chopstickRadius = 25;
-    findBottomCornerPoints(localPosition, chopstickRange, noRotateChopstick, degree);
-    findTopCornerPoints(localPosition, chopstickRange, noRotateChopstick, degree);
-
-
-
-
-    // /// bottom corner point
-    // topCornerPoint = findSymmetricPoint(
-    //     Offset(paper_size.width, 0),
-    //     Offset(chopstick!.bottomRight.dx + chopstickRadius,
-    //         -chopstick!.bottomRight.dy),
-    //     Offset(
-    //         chopstick!.topRight.dx + chopstickRadius, -chopstick!.topRight.dy));
-    //
-    // /// revert to dart coordinate
-    // topCornerPoint = Offset(topCornerPoint.dx, -topCornerPoint.dy);
+    findBottomCornerPoints(
+        localPosition, chopstickRange, noRotateChopstick, degree);
+    findTopCornerPoints(
+        localPosition, chopstickRange, noRotateChopstick, degree);
 
     setState(() {});
   }
 
-  void findBottomCornerPoints(
-      Offset localPosition,
-      double chopstickRange,
-      Chopstick noRotateChopstick,
-      double degree
-      ) {
-    if(degree < 0) {
+  void findBottomCornerPoints(Offset localPosition, double chopstickRange,
+      Chopstick noRotateChopstick, double degree) {
+    if (degree < 0) {
       return;
     }
-    var amountToMiddle = ((paper_size.width - localPosition.dx) / 2) - chopstickRange;
+    var amountToMiddle =
+        ((paper_size.width - localPosition.dx) / 2) - chopstickRange;
+
     /// Find bottom corner point
-    bottomCornerPoint = findSymmetricPoint(
+    bottomCornerPoint = TwoDFormula.findSymmetricPoint(
         Offset(paper_size.width, -paper_size.height),
         Offset(chopstick!.bottomRight.dx + amountToMiddle,
             -chopstick!.bottomRight.dy),
         Offset(
             chopstick!.topRight.dx + amountToMiddle, -chopstick!.topRight.dy));
 
-    if(degree > 0 && chopstick!.topRight.dx <= topRightLimitation.dx) {
+    if (degree > 0 && chopstick!.topRight.dx <= topRightLimitation.dx) {
       /// Find top corner point
-      var noRotateBottomCornerPoint = Offset(noRotateChopstick.bottomLeft.dx, -noRotateChopstick.bottomLeft.dy);
-      var dxBottomCornerDiff =  (bottomCornerPoint.dx - noRotateBottomCornerPoint.dx).abs();
-      var dyBottomCornerDiff = (bottomCornerPoint.dy - noRotateBottomCornerPoint.dy).abs();
+      var noRotateBottomCornerPoint = Offset(
+          noRotateChopstick.bottomLeft.dx, -noRotateChopstick.bottomLeft.dy);
+      var dxBottomCornerDiff =
+          (bottomCornerPoint.dx - noRotateBottomCornerPoint.dx).abs();
+      var dyBottomCornerDiff =
+          (bottomCornerPoint.dy - noRotateBottomCornerPoint.dy).abs();
 
       var noRotateTopCornerPoint = noRotateChopstick.topLeft;
       topCornerPoint = Offset(noRotateTopCornerPoint.dx + dxBottomCornerDiff,
           noRotateTopCornerPoint.dy + dyBottomCornerDiff);
-      topCornerPoint = TwoDFormula.findIntersectionWithHorizontalLine(bottomCornerPoint, topCornerPoint, 0)!;
+      topCornerPoint = TwoDFormula.findIntersectionWithHorizontalLine(
+          bottomCornerPoint, topCornerPoint, 0)!;
       var explodeAmount = const Offset(3, 3);
-      topCornerPoint = Offset(topCornerPoint.dx + explodeAmount.dx, topCornerPoint.dy);
+      topCornerPoint =
+          Offset(topCornerPoint.dx + explodeAmount.dx, topCornerPoint.dy);
 
       /// Revert to dart coordinate
-      topCornerPoint =  Offset(topCornerPoint.dx, -topCornerPoint.dy);
+      topCornerPoint = Offset(topCornerPoint.dx, -topCornerPoint.dy);
+    } else if(chopstick!.topRight.dx > topRightLimitation.dx) {
+      topCornerPoint = Offset(paper_size.width, 0);
     }
 
     bottomCornerPoint = Offset(bottomCornerPoint.dx, -bottomCornerPoint.dy);
   }
 
-
-  void findTopCornerPoints(
-      Offset localPosition,
-      double chopstickRange,
-      Chopstick noRotateChopstick,
-      double degree
-      ) {
-    if(degree > 0) {
+  void findTopCornerPoints(Offset localPosition, double chopstickRange,
+      Chopstick noRotateChopstick, double degree) {
+    if (degree > 0) {
       return;
     }
-    var amountToMiddle = ((paper_size.width - localPosition.dx) / 2) - chopstickRange;
+    var amountToMiddle =
+        ((paper_size.width - localPosition.dx) / 2) - chopstickRange;
+
     /// Find top corner point
-    topCornerPoint = findSymmetricPoint(
+    topCornerPoint = TwoDFormula.findSymmetricPoint(
         Offset(paper_size.width, 0),
         Offset(chopstick!.bottomRight.dx + amountToMiddle,
             -chopstick!.bottomRight.dy),
         Offset(
             chopstick!.topRight.dx + amountToMiddle, -chopstick!.topRight.dy));
 
-
-    if(degree < 0 && chopstick!.bottomRight.dx <= bottomRightLimitation.dx) {
+    if (degree < 0 && chopstick!.bottomRight.dx <= bottomRightLimitation.dx) {
       /// Find bot corner point
-      var noRotateTopCornerPoint = Offset(noRotateChopstick.topLeft.dx, -noRotateChopstick.topLeft.dy);
-      var dxTopCornerDiff =  (topCornerPoint.dx - noRotateTopCornerPoint.dx).abs();
-      var dyTopCornerDiff = (topCornerPoint.dy - noRotateTopCornerPoint.dy).abs();
-
+      var noRotateTopCornerPoint =
+          Offset(noRotateChopstick.topLeft.dx, -noRotateChopstick.topLeft.dy);
+      var dxTopCornerDiff =
+          (topCornerPoint.dx - noRotateTopCornerPoint.dx).abs();
+      var dyTopCornerDiff =
+          (topCornerPoint.dy - noRotateTopCornerPoint.dy).abs();
 
       var noRotateBottomCornerPoint = noRotateChopstick.bottomLeft;
       bottomCornerPoint = Offset(noRotateBottomCornerPoint.dx + dxTopCornerDiff,
           -noRotateBottomCornerPoint.dy - dyTopCornerDiff);
-      bottomCornerPoint = TwoDFormula.findIntersectionWithHorizontalLine(topCornerPoint, bottomCornerPoint, -paper_size.height)!;
+      bottomCornerPoint = TwoDFormula.findIntersectionWithHorizontalLine(
+          topCornerPoint, bottomCornerPoint, -paper_size.height)!;
       var explodeAmount = const Offset(3, 3);
-      bottomCornerPoint = Offset(bottomCornerPoint.dx + explodeAmount.dx, bottomCornerPoint.dy);
+      bottomCornerPoint =
+          Offset(bottomCornerPoint.dx + explodeAmount.dx, bottomCornerPoint.dy);
 
       /// Revert to dart coordinate
-      bottomCornerPoint =  Offset(bottomCornerPoint.dx, -bottomCornerPoint.dy);
+      bottomCornerPoint = Offset(bottomCornerPoint.dx, -bottomCornerPoint.dy);
     }
 
     topCornerPoint = Offset(topCornerPoint.dx, -topCornerPoint.dy);
@@ -537,27 +529,6 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
     });
   }
 
-  /// Hàm tìm điểm đối xứng của [point] qua đường thẳng xác định bởi [linePoint1] và [linePoint2].
-  Offset findSymmetricPoint(
-      Offset point, Offset linePoint1, Offset linePoint2) {
-    // Tọa độ của đường thẳng
-    double x1 = linePoint1.dx, y1 = linePoint1.dy;
-    double x2 = linePoint2.dx, y2 = linePoint2.dy;
-    double px = point.dx, py = point.dy;
-
-    // Tính hệ số A, B, C của đường thẳng Ax + By + C = 0
-    double A = y2 - y1;
-    double B = x1 - x2;
-    double C = x2 * y1 - x1 * y2;
-
-    // Tính điểm đối xứng
-    double denominator = A * A + B * B;
-    double xSymmetric = px - 2 * A * (A * px + B * py + C) / denominator;
-    double ySymmetric = py - 2 * B * (A * px + B * py + C) / denominator;
-
-    return Offset(xSymmetric, ySymmetric);
-  }
-
   Offset3D turnPageTransform(Offset3D vi) {
     // Get the current input vertex.
     var A = -1;
@@ -686,69 +657,47 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
               decoration: const BoxDecoration(
                   shape: BoxShape.circle, color: Colors.yellow),
             )),
+      // Positioned(
+      //     left: topCornerPoint.dx - 5,
+      //     top: topCornerPoint.dy - 5,
+      //     child: Container(
+      //       height: 10,
+      //       width: 10,
+      //       child: Text("t"),
+      //       decoration: const BoxDecoration(
+      //           shape: BoxShape.circle, color: Colors.purple),
+      //     )),
       Positioned(
-          left: topCornerPoint.dx - 5,
-          top: topCornerPoint.dy - 5,
+          left: chopstick.centerTop.dx - 5 ?? 0,
+          top: chopstick.centerTop.dy -5 ?? 0,
           child: Container(
             height: 10,
             width: 10,
-            child: Text("t"),
             decoration: const BoxDecoration(
-                shape: BoxShape.circle, color: Colors.purple),
+                shape: BoxShape.circle, color: Colors.pink),
           )),
-
+      Positioned(
+          left: chopstick.centerBottom.dx - 5 ?? 0,
+          top: chopstick.centerBottom.dy -5 ?? 0,
+          child: Container(
+            height: 10,
+            width: 10,
+            decoration: const BoxDecoration(
+                shape: BoxShape.circle, color: Colors.pink),
+          )),
+      // Positioned(
+      //     left: chopstick.centerBottom.dx  - 5?? 0,
+      //     top: chopstick.centerBottom.dy - 5 ?? 0,
+      //     child: Container(
+      //       height: 10,
+      //       width: 10,
+      //       decoration: const BoxDecoration(
+      //           shape: BoxShape.circle, color: Colors.brown),
+      //     )),
     ];
   }
 }
 
-class PageAnchor extends StatelessWidget {
-  final Chopstick? chopstick;
-  const PageAnchor({super.key, this.chopstick});
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Positioned(
-            left: chopstick?.topLeft.dx ?? 0,
-            top: chopstick?.topLeft.dy ?? 0,
-            child: Container(
-              height: 10,
-              width: 10,
-              decoration: const BoxDecoration(
-                  shape: BoxShape.circle, color: Colors.brown),
-            )),
-        Positioned(
-            left: chopstick?.topRight.dx ?? 0,
-            top: chopstick?.topRight.dy ?? 0,
-            child: Container(
-              height: 10,
-              width: 10,
-              decoration: const BoxDecoration(
-                  shape: BoxShape.circle, color: Colors.brown),
-            )),
-        Positioned(
-            left: chopstick?.bottomRight.dx ?? 0,
-            top: chopstick?.bottomRight.dy ?? 0,
-            child: Container(
-              height: 10,
-              width: 10,
-              decoration: const BoxDecoration(
-                  shape: BoxShape.circle, color: Colors.brown),
-            )),
-        Positioned(
-            left: chopstick?.bottomLeft.dx ?? 0,
-            top: chopstick?.bottomLeft.dy ?? 0,
-            child: Container(
-              height: 10,
-              width: 10,
-              decoration: const BoxDecoration(
-                  shape: BoxShape.circle, color: Colors.brown),
-            )),
-      ],
-    );
-  }
-}
 
 class VerticesDraw extends CustomPainter {
   @override
@@ -968,8 +917,19 @@ class Chopstick {
   Offset center;
   double range;
   double angle;
-  Chopstick(this.paperSize, this.topLeft, this.topRight, this.bottomLeft,
-      this.bottomRight, this.center, this.range, this.angle);
+  Offset centerTop;
+  Offset centerBottom;
+  Chopstick(
+      this.paperSize,
+      this.topLeft,
+      this.topRight,
+      this.bottomLeft,
+      this.bottomRight,
+      this.center,
+      this.centerTop,
+      this.centerBottom,
+      this.range,
+      this.angle);
 
   rotateBy(double degree,
 
@@ -982,19 +942,27 @@ class Chopstick {
     var topRightOxy = Offset(topRight.dx, -topRight.dy);
     var bottomLeftOxy = Offset(bottomLeft.dx, -bottomLeft.dy);
     var bottomRightOxy = Offset(bottomRight.dx, -bottomRight.dy);
+    var centerTopOxy  = Offset(centerTop.dx, -centerTop.dy);
+    var centerBottomOxy  = Offset(centerBottom.dx, -centerBottom.dy);
 
     /// rotate
     topLeftOxy = rotateAround(topLeftOxy, centerOxy, degree);
     topRightOxy = rotateAround(topRightOxy, centerOxy, degree);
     bottomLeftOxy = rotateAround(bottomLeftOxy, centerOxy, degree);
     bottomRightOxy = rotateAround(bottomRightOxy, centerOxy, degree);
-
+    centerTopOxy = Offset(topLeftOxy.dx + (topRightOxy.dx - topLeftOxy.dx) / 2,
+        topRightOxy.dy + (topLeftOxy.dy - topRightOxy.dy) / 2);
+    centerBottomOxy = Offset(bottomLeftOxy.dx + (bottomRightOxy.dx - bottomLeftOxy.dx) / 2,
+        bottomLeftOxy.dy - (bottomLeftOxy.dy - bottomRightOxy.dy) / 2);
     /// MARK: top
     // /// Find intersection between the right chopstick line (topRight and bottomRight) and top (Ox)
     var topLeadingIntersection =
         TwoDFormula.findIntersectionWithOX(bottomLeftOxy, topLeftOxy);
     var topTrailingIntersection =
         TwoDFormula.findIntersectionWithOX(bottomRightOxy, topRightOxy);
+    var topCenterIntersection =
+    TwoDFormula.findIntersectionWithOX(centerBottomOxy, centerTopOxy);
+
 
     /// if overflow find intersection with vertical line zx = paperSize.width
     if (topLeadingIntersection!.dx > paperSize.width) {
@@ -1007,9 +975,16 @@ class Chopstick {
           bottomRightOxy, topRightOxy, paperSize.width);
     }
 
+    if (topCenterIntersection!.dx > paperSize.width) {
+      topCenterIntersection = TwoDFormula.findIntersectionWithVerticalLine(
+          centerTopOxy, centerBottomOxy, paperSize.width);
+    }
+
     /// revert to dart coordinate
     topLeft = Offset(topLeadingIntersection!.dx, -topLeadingIntersection!.dy);
     topRight = Offset(topTrailingIntersection!.dx, -topTrailingIntersection.dy);
+    centerTop =  Offset(topCenterIntersection!.dx, -topCenterIntersection.dy);
+
 
     ///MARK: bottom
     var bottomLeadingIntersection =
@@ -1018,6 +993,9 @@ class Chopstick {
     var bottomTrailingIntersection =
         TwoDFormula.findIntersectionWithHorizontalLine(
             bottomRightOxy, topRightOxy, -paperSize.height);
+    var bottomCenterIntersection =
+    TwoDFormula.findIntersectionWithHorizontalLine(
+        centerTopOxy, centerBottomOxy, -paperSize.height);
 
     /// if overflow find intersection with vertical line x = paperSize.width
     if (bottomLeadingIntersection!.dx > paperSize.width) {
@@ -1030,16 +1008,22 @@ class Chopstick {
           bottomRightOxy, topRightOxy, paperSize.width);
     }
 
+    if (bottomCenterIntersection!.dx > paperSize.width) {
+      bottomCenterIntersection = TwoDFormula.findIntersectionWithVerticalLine(
+          centerTopOxy, centerBottomOxy, paperSize.width);
+    }
+
     /// revert to dart coordinate
     bottomLeft =
         Offset(bottomLeadingIntersection!.dx, -bottomLeadingIntersection.dy);
     bottomRight =
         Offset(bottomTrailingIntersection!.dx, -bottomTrailingIntersection.dy);
+    centerBottom = Offset(bottomCenterIntersection!.dx, -bottomCenterIntersection.dy);
 
     angle = degree;
   }
 
-   updateRange(Offset localPosition, double range) {
+  updateRange(Offset localPosition, double range) {
     // var distanceFromRight = this.paperSize.width - localPosition.dx;
     // var range = (distanceFromRight / 2) - radius;
 
@@ -1049,6 +1033,9 @@ class Chopstick {
     bottomRight =
         Offset(localPosition.dx + range, topRight.dy + paperSize.height);
     center = Offset(localPosition.dx + range / 2, paperSize.height / 2);
+
+    centerTop =  Offset(localPosition.dx + (range / 2), 0);
+    centerBottom =  Offset(localPosition.dx + (range / 2), paperSize.height);
 
     this.range = range;
   }
@@ -1062,6 +1049,8 @@ class Chopstick {
       Offset? bottomLeft,
       Offset? bottomRight,
       Offset? center,
+      Offset? centerTop,
+      Offset? centerBottom,
       double? range,
       double? angle}) {
     return Chopstick(
@@ -1071,6 +1060,8 @@ class Chopstick {
         bottomLeft ?? this.bottomLeft,
         bottomRight ?? this.bottomRight,
         center ?? this.center,
+        centerTop ?? this.centerTop,
+        centerBottom ?? this.centerBottom,
         range ?? this.range,
         angle ?? this.angle);
   }
