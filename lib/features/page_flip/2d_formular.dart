@@ -34,13 +34,17 @@ class TwoDFormula {
   }
 
   static Offset? findIntersectionWithOX(Offset p1, Offset p2) {
+    // Check if the line is vertical
     if (p1.dx == p2.dx) {
-      return null;
+      // The vertical line intersects the x-axis at (p1.dx, 0)
+      return Offset(p1.dx, 0);
     }
 
+    // Calculate slope and y-intercept
     final double m = (p2.dy - p1.dy) / (p2.dx - p1.dx);
     final double c = p1.dy - m * p1.dx;
 
+    // Calculate the intersection with the x-axis
     final double x = -c / m;
 
     return Offset(x, 0);
@@ -49,7 +53,7 @@ class TwoDFormula {
   static Offset? findIntersectionWithHorizontalLine(Offset p1, Offset p2, double M) {
     // Check if the line is vertical (parallel to the y-axis)
     if (p1.dx == p2.dx) {
-      return null; // No intersection with horizontal line, because the line is vertical
+      return Offset(p1.dx, M);
     }
 
     // Calculate the slope (m) of the line
