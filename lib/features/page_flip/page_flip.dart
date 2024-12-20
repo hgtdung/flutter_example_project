@@ -291,7 +291,7 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
     degree = dy;
 
     /// imagine that the touch position will be on the half of the circle
-    var chopstickRange = 2 * (paper_size.width - localPosition.dx) / pi;
+    var chopstickRange = (paper_size.width - localPosition.dx) / pi;
 
     if (isBottomCornerOverflow == false) {
       chopstick!.updateRange(localPosition, chopstickRange);
@@ -301,7 +301,7 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
     var noRotateChopstick = chopstick!.copyWith();
 
     ///
-    fontLayerWidth = localPosition.dx + chopstickRange / 2;
+    fontLayerWidth = localPosition.dx + chopstickRange;
 
     if (degree == 0 ) {
       return;
@@ -341,9 +341,10 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
 
         /// find bottom corner point
         var amountToMiddle = ((paper_size.width -
-            (localPosition.dx - chopstick!.range / 2)) /
+            (localPosition.dx)) /
             2) -
             chopstick!.range;
+
         testBottomCornerPoint = TwoDFormula.findSymmetricPoint(
             Offset(paper_size.width, -paper_size.height),
             Offset(chopstick!.bottomRight.dx + amountToMiddle,
@@ -417,10 +418,29 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
         if (newPivotChopstick.topRight.dy > testBottomCornerPoint.dy &&
             (newPivotChopstick.topRight.dy - testBottomCornerPoint.dy) > 50) {
           chopstick = newPivotChopstick;
-          print("chopstick after rotate ${newPivotChopstick}");
-          overFlowDegree = degree;
+
+          // print("chopstick after rotate ${newPivotChopstick}");
+          overFlowDegree = chopstick!.angle;
           isBottomCornerOverflow = true;
-          print("zo if ne");
+          // var overFlowBottomCornerRotateChopstick = chopstick!..rotateBy(overFlowDegree!, pivot: touchPoint);
+          //
+          // if(degree < overFlowDegree!) {
+          //   isBottomCornerOverflow = false;
+          // } else {
+          //   var revertChopstick = chopstick!.revertRotation();
+          //   var rotatedRevertChopstick = revertChopstick
+          //     ..rotateBy(overFlowDegree!, pivot: touchPoint);
+          //   if (rotatedRevertChopstick.bottomRight.dx <
+          //       bottomLeftLimitation.dx) {
+          //     print("chopstick");
+          //     return;
+          //   } else {
+          //     chopstick = rotatedRevertChopstick;
+          //   }
+          // }
+          /// overflow
+
+
           return;
         } else {
           print("else ne");
@@ -1303,7 +1323,7 @@ class Chopstick {
   updateRange(Offset localPosition, double range) {
     // var distanceFromRight = this.paperSize.width - localPosition.dx;
     // var range = (distanceFromRight / 2) - radius;
-    var chopstickLeading = localPosition.dx - range / 2;
+    var chopstickLeading = localPosition.dx;
 
     topLeft = Offset(chopstickLeading, 0);
     topRight = Offset(chopstickLeading + range, 0);
