@@ -50,10 +50,15 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
   Offset? bezierControlPoint;
 
   double? overFlowDegree;
+  double? overFlowDegree2;
 
   /// [bottomCorner] greater [chopstick.topRight] than an amount of 50
   bool isBottomCornerOverflow = false;
+  bool cancelUpdateRange = false;
 
+
+  /// test
+  double step = 1;
 
   @override
   void initState() {
@@ -106,14 +111,12 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
               // print("dsd ${panUpdate.localPosition}");
 
               onPanUpdate(panUpdate.localPosition);
+              // testNewMethod(panUpdate.localPosition);
               setState(() {
                 lastUpdatePoint = panUpdate.localPosition;
               });
             },
             onPanStart: (panStart) {
-              setState(() {
-                startPoint = panStart.localPosition;
-              });
               onPanStart(panStart.localPosition);
             },
             child: Container(
@@ -175,8 +178,8 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
                       ),
                     ),
                     Positioned(
-                        left: startPoint.dx,
-                        top: startPoint.dy,
+                        left: startPoint.dx - 5,
+                        top: startPoint.dy - 5,
                         child: Container(
                           height: 10,
                           width: 10,
@@ -229,11 +232,12 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
   ///
   void onPanStart(Offset localPosition) {
     isBottomCornerOverflow = false;
-    // startPoint = localPosition;
+    startPoint = Offset(393, localPosition.dy);
+
     /// only accept touch near the edge of the right and the left
-    if (localPosition.dx < (paper_size.width - 40)) {
-      return;
-    }
+    // if (localPosition.dx < (paper_size.width - 40)) {
+    //   return;
+    // }
     // chopstick ??= createChopstick(initialChopstickRange: 20);
     // calculateFontLayerWidth();
   }
@@ -271,6 +275,49 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
     fontLayerWidth = screen_size.width - chopstick!.range;
   }
 
+  void testNewMethod(Offset localPosition) {
+    touchPoint = localPosition;
+    var dy = startPoint.dy - touchPoint.dy;
+    // var degree = dy * 0.8;
+    var degree = dy;
+    print("degree $degree");
+    var dx = startPoint.dx - touchPoint.dx;
+
+
+    var d2y = degree -  cos((90 - dx) * pi / 180);
+    var finalDegree = d2y * 0.8;
+    print("final degree $finalDegree");
+
+    getClockWiseVer2(finalDegree);
+
+    //khi dang xoay, thi co xu huong
+
+    // dy cang lon thi, goc tro ve cang nho
+
+    // dx cang lon thi, luong xoay khi thay doi dy cang nho.
+
+  }
+
+  void getClockWiseVer2(double degree) {
+    var newPivotChopstick = chopstick!.copyWith()
+      ..rotateBy(degree, pivot: touchPoint);
+    chopstick = newPivotChopstick;
+  }
+
+  double mapRange2Range({
+    required double value,
+    required double oldMin,
+    required double oldMax,
+    required double newMin,
+    required double newMax,
+  }) {
+    return newMin + (value - oldMin) / (oldMax - oldMin) * (newMax - newMin);
+  }
+
+  double returnAngleByDegree() {
+    return 0;
+  }
+
   void onPanUpdate(Offset localPosition, {bool? test}) {
     /// just for display UI
     touchPoint = localPosition;
@@ -287,15 +334,37 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
 
     /// calculate rotate angle, compare last update point with current point
     var dy = startPoint.dy - touchPoint.dy;
+    var dx = startPoint.dx - touchPoint.dx;
+
     var degree = 0.0;
-    degree = dy;
+    // var kRotation [0.8 -  0.5]  ------ dx [0, 393]   
+    var kRotation =  mapRange2Range(value: dx, oldMin: 0, oldMax: 393, newMin: 0.8, newMax: 0.1);
+    // print("krotation $kRotation");
+    degree = dy * kRotation;
+
+    /// returnAngle by dy.
+    /// 10 - 5
+    ///
+
+
+
+
 
     /// imagine that the touch position will be on the half of the circle
     var chopstickRange = (paper_size.width - localPosition.dx) / pi;
 
-    if (isBottomCornerOverflow == false) {
-      chopstick!.updateRange(localPosition, chopstickRange);
-    }
+    // if(overFlowDegree != null) {
+    //   if(dx > 10) {
+    //     cancelUpdateRange = false;
+    //   } else {
+    //     cancelUpdateRange = true;
+    //   }
+    // }
+
+    chopstick!.updateRange(localPosition, chopstickRange);
+    // if (isBottomCornerOverflow == false) {
+
+    // }
 
     /// save chopstick that haven't rotated yet
     var noRotateChopstick = chopstick!.copyWith();
@@ -324,20 +393,64 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
           ? getClockwiseChopstick(degree, localPosition)
           : getUClockwiseChopstick(degree);
     } else {
-      print("last degreee $overFlowDegree");
-      if(degree <overFlowDegree!) {
+      if(degree < overFlowDegree!) {
         isBottomCornerOverflow = false;
       } else {
-        var revertChopstick = chopstick!.revertRotation();
-        var rotatedRevertChopstick =  revertChopstick..rotateBy(overFlowDegree!, pivot: touchPoint);
-        if(rotatedRevertChopstick.bottomRight.dx < bottomLeftLimitation.dx) {
-          print("chopstick");
-          return;
+        // var revertChopstick = chopstick!.revertRotation();
+        var handlingChopstick;
+        if(cancelUpdateRange) {
+          handlingChopstick = chopstick!.revertRotation();
         } else {
-          chopstick = rotatedRevertChopstick;
+          handlingChopstick = chopstick;
+        }
+        var freezeAngleChopstick =  handlingChopstick!.copyWith()..rotateBy(overFlowDegree!, pivot: touchPoint);
+
+        if(freezeAngleChopstick.bottomRight.dx < bottomLeftLimitation.dx) {
+          chopstick!.rotateBy(overFlowDegree!, pivot: chopstick!.pivot);
+
+          // if(cancelUpdateRange == true) {
+          //   /// no create new chopstick => return
+          //   return;
+          // } else {
+          //   chopstick!.rotateBy(overFlowDegree!, pivot: chopstick!.pivot);
+          //     // handlingChopstick!.rotateBy(
+          //     //     overFlowDegree!, pivot: chopstick!.pivot);
+          // }
+            // if (dx > (degree - overFlowDegree!)) {
+            //   cancelUpdateRange = false;
+            //   handlingChopstick!.rotateBy(
+            //       overFlowDegree!, pivot: chopstick!.pivot);
+            // } else {
+            //   cancelUpdateRange = true;
+            // }
+
+          // var handlingChopstick;
+          // if(cancelUpdateRange) {
+          //   handlingChopstick = chopstick!.revertRotation();
+          // } else {
+          //   handlingChopstick = chopstick;
+          // }
+          // var freezeAngleChopstick =  handlingChopstick!.copyWith()..rotateBy(overFlowDegree!, pivot: touchPoint);
+          // if(freezeAngleChopstick.bottomRight.dx < bottomLeftLimitation.dx) {
+          //   print("chopstick before $chopstick");
+          //
+          //   print("chopstick after $chopstick");
+          //   if (dx > (degree - overFlowDegree!)) {
+          //     cancelUpdateRange = false;
+          //     handlingChopstick!.rotateBy(
+          //         overFlowDegree!, pivot: chopstick!.pivot);
+          //   } else {
+          //     cancelUpdateRange = true;
+          //   }
+          // }
+
+
+
+        } else {
+          chopstick = freezeAngleChopstick;
         }
 
-        // print("revert chopstick $revertChopstick");
+
 
         /// find bottom corner point
         var amountToMiddle = ((paper_size.width -
@@ -355,6 +468,10 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
         /// Revert to dart coordinate
         testBottomCornerPoint =
             Offset(testBottomCornerPoint.dx, -testBottomCornerPoint.dy);
+      }
+
+      if(dx != 0 && degree != 0) {
+        var newDy = dx * cos(degree * (pi / 180)) ;
       }
     }
 
@@ -387,13 +504,16 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
     setState(() {});
   }
 
+  /// khi vuot qua trang thai vuong goc thi, chuyen dong cua trang giay lai khac di
+  /// tinh toan lai truc change range va truc xoay sau khi xoay
+
   void getClockwiseChopstick(double degree, Offset localPosition) {
     /// Rotate along clockwise
     /// /revert back to update range, then rotate
     // var revertChopstick = chopstick.revertRotation();
 
-    var newChopstick = chopstick!.copyWith()..rotateBy(degree);
-    if (newChopstick.topRight.dx >= topRightLimitation.dx) {
+    // var newChopstick = chopstick!.copyWith()..rotateBy(degree);
+    // if (newChopstick.topRight.dx >= topRightLimitation.dx) {
       var newPivotChopstick = chopstick!.copyWith()
         ..rotateBy(degree, pivot: touchPoint);
 
@@ -443,74 +563,75 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
 
           return;
         } else {
-          print("else ne");
         }
       } else {}
 
       chopstick = newPivotChopstick;
-    }
+    // } else {
+    //   chopstick = newChopstick;
+    // }
 
     return;
 
     /// old code
     /// Reach top right limitation, move center to touch point
-    if (newChopstick.topRight.dx >= topRightLimitation.dx) {
-      var newPivotChopstick = chopstick!.copyWith()
-        ..rotateBy(degree, pivot: touchPoint);
-
-      /// Reach to bottom left limitation, translate to that point, then rotate around that point,
-      /// beside should increase chopstick range here
-      print("pivot chopstick $newPivotChopstick");
-
-      if (newPivotChopstick.bottomRight.dx <= bottomLeftLimitation.dx) {
-        print("zo day");
-
-        var offset =
-            (bottomLeftLimitation.dx - chopstick!.bottomRight.dx).abs();
-        chopstick = chopstick!.translateXby(offset);
-        var offsetChopstick = chopstick!.copyWith()
-          ..rotateBy(degree, pivot: bottomLeftLimitation);
-
-        /// Corner point below the bottom right point
-        if (offsetChopstick.topRight.dy > bottomCornerPoint.dy &&
-            (offsetChopstick.topRight.dy - bottomCornerPoint.dy) > 50) {
-          // chopstick!.rotateBy(degree, pivot: bottomLeftLimitation);
-          // chopstick!.rotateBy(degree, pivot: bottomLeftLimitation);
-          chopstick!.rotateBy(chopstick!.angle, pivot: touchPoint);
-          print("chopstick angle ${chopstick!.angle}");
-
-          /// rotate to limitation here
-          ///
-        } else {
-          chopstick!.rotateBy(degree, pivot: bottomLeftLimitation);
-        }
-      } else {
-        // var amountToMiddle =
-        //     ((paper_size.width - (localPosition.dx - newPivotChopstick.range / 2)) / 2) - newPivotChopstick.range;
-        //
-        // var bottomCornerPoint = TwoDFormula.findSymmetricPoint(
-        //     Offset(paper_size.width, -paper_size.height),
-        //     Offset(newPivotChopstick!.bottomRight.dx + amountToMiddle,
-        //         -newPivotChopstick!.bottomRight.dy),
-        //     Offset(
-        //         newPivotChopstick!.topRight.dx + amountToMiddle, -newPivotChopstick!.topRight.dy));
-
-        if (newPivotChopstick.topRight.dy > bottomCornerPoint.dy &&
-            (newPivotChopstick.topRight.dy - bottomCornerPoint.dy) > 50) {
-          chopstick!.rotateBy(chopstick!.angle, pivot: touchPoint);
-
-          /// bug here
-          print("bug here ${chopstick!.angle}");
-        } else {
-          chopstick = newPivotChopstick;
-          print("vao day");
-        }
-      }
-    } else {
-      print("vao day123");
-      chopstick = newChopstick;
-    }
-    print("chopstick $chopstick");
+    // if (newChopstick.topRight.dx >= topRightLimitation.dx) {
+    //   var newPivotChopstick = chopstick!.copyWith()
+    //     ..rotateBy(degree, pivot: touchPoint);
+    //
+    //   /// Reach to bottom left limitation, translate to that point, then rotate around that point,
+    //   /// beside should increase chopstick range here
+    //   print("pivot chopstick $newPivotChopstick");
+    //
+    //   if (newPivotChopstick.bottomRight.dx <= bottomLeftLimitation.dx) {
+    //     print("zo day");
+    //
+    //     var offset =
+    //         (bottomLeftLimitation.dx - chopstick!.bottomRight.dx).abs();
+    //     chopstick = chopstick!.translateXby(offset);
+    //     var offsetChopstick = chopstick!.copyWith()
+    //       ..rotateBy(degree, pivot: bottomLeftLimitation);
+    //
+    //     /// Corner point below the bottom right point
+    //     if (offsetChopstick.topRight.dy > bottomCornerPoint.dy &&
+    //         (offsetChopstick.topRight.dy - bottomCornerPoint.dy) > 50) {
+    //       // chopstick!.rotateBy(degree, pivot: bottomLeftLimitation);
+    //       // chopstick!.rotateBy(degree, pivot: bottomLeftLimitation);
+    //       chopstick!.rotateBy(chopstick!.angle, pivot: touchPoint);
+    //       print("chopstick angle ${chopstick!.angle}");
+    //
+    //       /// rotate to limitation here
+    //       ///
+    //     } else {
+    //       chopstick!.rotateBy(degree, pivot: bottomLeftLimitation);
+    //     }
+    //   } else {
+    //     // var amountToMiddle =
+    //     //     ((paper_size.width - (localPosition.dx - newPivotChopstick.range / 2)) / 2) - newPivotChopstick.range;
+    //     //
+    //     // var bottomCornerPoint = TwoDFormula.findSymmetricPoint(
+    //     //     Offset(paper_size.width, -paper_size.height),
+    //     //     Offset(newPivotChopstick!.bottomRight.dx + amountToMiddle,
+    //     //         -newPivotChopstick!.bottomRight.dy),
+    //     //     Offset(
+    //     //         newPivotChopstick!.topRight.dx + amountToMiddle, -newPivotChopstick!.topRight.dy));
+    //
+    //     if (newPivotChopstick.topRight.dy > bottomCornerPoint.dy &&
+    //         (newPivotChopstick.topRight.dy - bottomCornerPoint.dy) > 50) {
+    //       chopstick!.rotateBy(chopstick!.angle, pivot: touchPoint);
+    //
+    //       /// bug here
+    //       print("bug here ${chopstick!.angle}");
+    //     } else {
+    //       chopstick = newPivotChopstick;
+    //       print("vao day");
+    //     }
+    //   }
+    // } else {
+    //   print("vao day123");
+    //   chopstick = newChopstick;
+    // }
+    // print("chopstick $chopstick");
   }
 
   void findBezierPoint(double angle) {
@@ -714,9 +835,18 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
   void testRotate() {
     setState(() {
       // chopstick!.rotateBy(5);
+      if(step ==1 ) {
+        startPoint = Offset(393, 560.7);
+        // onPanUpdate(Offset(336, 486.7));
+        // testNewMethod(Offset(336, 486.7));
+        testNewMethod(Offset(300, 486.7));
 
-      var revertChopstick = chopstick!.revertRotation();
-      chopstick = revertChopstick;
+      } else if(step == 2){
+        // onPanUpdate(Offset(300, 486.7));
+        // testNewMethod(Offset(300, 486.7));
+        print("step 2");
+      }
+      step++;
     });
   }
 
@@ -1197,6 +1327,8 @@ class Offset3D {
 }
 
 class Chopstick {
+  /// luu lai truc ox va oy xoay khi xoay quanh touch point, tu do tinh duoc dx va dy moi?
+  ///
   Size paperSize;
   Offset topLeft;
   Offset topRight;
