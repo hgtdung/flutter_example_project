@@ -49,7 +49,7 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
   Offset? bezierEnd;
   Offset? bezierControlPoint;
 
-  double? overFlowDegree;
+  double? overflowDegree;
   double? overFlowDegree2;
 
   /// [bottomCorner] greater [chopstick.topRight] than an amount of 50
@@ -59,6 +59,10 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
 
   /// test
   double step = 1;
+
+  /// ver2
+  Offset? overflowPoint;
+  Offset? newRotationPoint;
 
   @override
   void initState() {
@@ -109,8 +113,8 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
           child: GestureDetector(
             onPanUpdate: (panUpdate) {
               // print("dsd ${panUpdate.localPosition}");
-
-              onPanUpdate(panUpdate.localPosition);
+              onPanUpdateVer2(panUpdate.localPosition, panUpdate);
+              // onPanUpdate(panUpdate.localPosition);
               // testNewMethod(panUpdate.localPosition);
               setState(() {
                 lastUpdatePoint = panUpdate.localPosition;
@@ -231,9 +235,9 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
   /// the statrt position => dy giam => rotate cung chieu kim dong ho.
   ///
   void onPanStart(Offset localPosition) {
-    isBottomCornerOverflow = false;
     startPoint = Offset(393, localPosition.dy);
-
+    newRotationPoint = null;
+    overflowDegree = null;
     /// only accept touch near the edge of the right and the left
     // if (localPosition.dx < (paper_size.width - 40)) {
     //   return;
@@ -318,6 +322,78 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
     return 0;
   }
 
+  void onPanUpdateVer2(Offset localPosition, DragUpdateDetails  details) {
+    /// There is a relationship between dx and dy that affect the rotation angle.
+    touchPoint = localPosition;
+
+    if(chopstick == null) {
+      startPoint = localPosition;
+      chopstick = createChopstick(localPosition, chopstickRadius: 10);
+    }
+
+    /// calculate rotation angle
+    var dy = startPoint.dy - touchPoint.dy;
+    var dx = startPoint.dx - touchPoint.dx;
+    var degree = 0.0;
+    // The greater dx, the less kRotation
+    var kxRotation = mapRange2Range(value: dx, oldMin: 0, oldMax: paper_size.width, newMin: 1, newMax: 0.1);
+     degree = dy * kxRotation;
+    //[0, 54] kyRotation = 1, > 54 kyRotation increase.
+    /// dy chi chuyen dong 1/5
+
+    var kyRotation = mapRange2Range(value: dy , oldMin: 0, oldMax: paper_size.height, newMin: 1, newMax: 0.005);
+    degree = degree * kyRotation;
+    var kDegree = degree > 0 ? 1.0 : -1.0;
+
+    print("degree before $degree");
+    /// how to find this on different screen
+    if(degree > 60 * kDegree) {
+      degree = 60 * kDegree;
+    }
+
+
+
+    if(chopstick!.bottomRight.dx < bottomLeftLimitation.dx && degree >= 60) {
+      // quay xe
+      return;
+    } else if(chopstick!.bottomRight.dx < bottomLeftLimitation.dx && degree < 60) {
+      overflowDegree ??= degree;
+      /// right, up, down
+      if (details.delta.dx > 0 || details.delta.dy < 0 || details.delta.dy > 0) {
+        if(degree > overflowDegree!) {
+          newRotationPoint = bottomLeftLimitation;
+        } else {
+          newRotationPoint = null;
+        }
+      /// left
+      } else if (details.delta.dx < 0) {
+        newRotationPoint = bottomLeftLimitation;
+      }
+      /// reset overflow
+    }  else if((chopstick!.bottomRight.dx).round() > bottomLeftLimitation.dx && degree < 60) {
+      overflowDegree = null;
+    }
+
+    /// update range first
+    var chopstickRange = (paper_size.width - localPosition.dx) / pi;
+    chopstick!.updateRange(localPosition, chopstickRange);
+    fontLayerWidth = localPosition.dx + chopstickRange;
+
+    /// reach [bottomLeftLimitation], move to that offset and rotate around that point
+    if(newRotationPoint != null) {
+      var offset =
+      (bottomLeftLimitation.dx - chopstick!.bottomRight.dx).abs();
+      chopstick = chopstick!.translateXby(offset);
+    }
+
+    /// maximum degree 54
+    var newPivotChopstick = chopstick!.copyWith()
+      ..rotateBy(degree, pivot: newRotationPoint ?? touchPoint);
+    chopstick = newPivotChopstick;
+
+    findBottomCornerPoints(localPosition, chopstickRange, degree);
+  }
+
   void onPanUpdate(Offset localPosition, {bool? test}) {
     /// just for display UI
     touchPoint = localPosition;
@@ -393,7 +469,7 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
           ? getClockwiseChopstick(degree, localPosition)
           : getUClockwiseChopstick(degree);
     } else {
-      if(degree < overFlowDegree!) {
+      if(degree < overflowDegree!) {
         isBottomCornerOverflow = false;
       } else {
         // var revertChopstick = chopstick!.revertRotation();
@@ -403,10 +479,10 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
         } else {
           handlingChopstick = chopstick;
         }
-        var freezeAngleChopstick =  handlingChopstick!.copyWith()..rotateBy(overFlowDegree!, pivot: touchPoint);
+        var freezeAngleChopstick =  handlingChopstick!.copyWith()..rotateBy(overflowDegree!, pivot: touchPoint);
 
         if(freezeAngleChopstick.bottomRight.dx < bottomLeftLimitation.dx) {
-          chopstick!.rotateBy(overFlowDegree!, pivot: chopstick!.pivot);
+          chopstick!.rotateBy(overflowDegree!, pivot: chopstick!.pivot);
 
           // if(cancelUpdateRange == true) {
           //   /// no create new chopstick => return
@@ -540,7 +616,7 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
           chopstick = newPivotChopstick;
 
           // print("chopstick after rotate ${newPivotChopstick}");
-          overFlowDegree = chopstick!.angle;
+          overflowDegree = chopstick!.angle;
           isBottomCornerOverflow = true;
           // var overFlowBottomCornerRotateChopstick = chopstick!..rotateBy(overFlowDegree!, pivot: touchPoint);
           //
@@ -654,8 +730,7 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
     //endpoint.dx - 5, startPoint.y + 3
   }
 
-  void findBottomCornerPoints(Offset localPosition, double chopstickRange,
-      Chopstick noRotateChopstick, double degree) {
+  void findBottomCornerPoints(Offset localPosition, double chopstickRange, double degree) {
     if (degree < 0) {
       return;
     }
@@ -991,6 +1066,17 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
       Positioned(
           left: topCornerPoint.dx - 5,
           top: topCornerPoint.dy - 5,
+          child: Container(
+            height: 10,
+            width: 10,
+            child: Text("t"),
+            decoration: const BoxDecoration(
+                shape: BoxShape.circle, color: Colors.purple),
+          )),
+      if (newRotationPoint != null)
+      Positioned(
+          left: newRotationPoint!.dx - 5,
+          top: newRotationPoint!.dy - 5,
           child: Container(
             height: 10,
             width: 10,
@@ -1453,8 +1539,6 @@ class Chopstick {
   }
 
   updateRange(Offset localPosition, double range) {
-    // var distanceFromRight = this.paperSize.width - localPosition.dx;
-    // var range = (distanceFromRight / 2) - radius;
     var chopstickLeading = localPosition.dx;
 
     topLeft = Offset(chopstickLeading, 0);
