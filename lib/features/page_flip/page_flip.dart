@@ -56,7 +56,6 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
   bool isBottomCornerOverflow = false;
   bool cancelUpdateRange = false;
 
-
   /// test
   double step = 1;
 
@@ -238,6 +237,7 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
     startPoint = Offset(393, localPosition.dy);
     newRotationPoint = null;
     overflowDegree = null;
+
     /// only accept touch near the edge of the right and the left
     // if (localPosition.dx < (paper_size.width - 40)) {
     //   return;
@@ -287,8 +287,7 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
     print("degree $degree");
     var dx = startPoint.dx - touchPoint.dx;
 
-
-    var d2y = degree -  cos((90 - dx) * pi / 180);
+    var d2y = degree - cos((90 - dx) * pi / 180);
     var finalDegree = d2y * 0.8;
     print("final degree $finalDegree");
 
@@ -299,7 +298,6 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
     // dy cang lon thi, goc tro ve cang nho
 
     // dx cang lon thi, luong xoay khi thay doi dy cang nho.
-
   }
 
   void getClockWiseVer2(double degree) {
@@ -322,11 +320,11 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
     return 0;
   }
 
-  void onPanUpdateVer2(Offset localPosition, DragUpdateDetails  details) {
+  void onPanUpdateVer2(Offset localPosition, DragUpdateDetails details) {
     /// There is a relationship between dx and dy that affect the rotation angle.
     touchPoint = localPosition;
 
-    if(chopstick == null) {
+    if (chopstick == null) {
       startPoint = localPosition;
       chopstick = createChopstick(localPosition, chopstickRadius: 10);
     }
@@ -336,62 +334,102 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
     var dx = startPoint.dx - touchPoint.dx;
     var degree = 0.0;
     // The greater dx, the less kRotation
-    var kxRotation = mapRange2Range(value: dx, oldMin: 0, oldMax: paper_size.width, newMin: 1, newMax: 0.1);
-     degree = dy * kxRotation;
+    var kxRotation = mapRange2Range(
+        value: dx, oldMin: 0, oldMax: paper_size.width, newMin: 1, newMax: 0.1);
+    degree = dy * kxRotation;
     //[0, 54] kyRotation = 1, > 54 kyRotation increase.
     /// dy chi chuyen dong 1/5
 
-    var kyRotation = mapRange2Range(value: dy , oldMin: 0, oldMax: paper_size.height, newMin: 1, newMax: 0.005);
+    var kyRotation = mapRange2Range(
+        value: dy,
+        oldMin: 0,
+        oldMax: paper_size.height,
+        newMin: 1,
+        newMax: 0.005);
     degree = degree * kyRotation;
     var kDegree = degree > 0 ? 1.0 : -1.0;
+    const double maximumDegree = 60.0;
 
-    print("degree before $degree");
     /// how to find this on different screen
-    if(degree > 60 * kDegree) {
+    if (degree.abs() > 60) {
       degree = 60 * kDegree;
     }
 
-
-
-    if(chopstick!.bottomRight.dx < bottomLeftLimitation.dx && degree >= 60) {
-      // quay xe
+    if ((chopstick!.bottomRight.dx < bottomLeftLimitation.dx &&
+            degree >= maximumDegree) ||
+        (chopstick!.topRight.dx < topLeftLimitation.dx &&
+            degree <= -maximumDegree)) {
       return;
-    } else if(chopstick!.bottomRight.dx < bottomLeftLimitation.dx && degree < 60) {
+    } else if ((chopstick!.bottomRight.dx < bottomLeftLimitation.dx &&
+            degree < maximumDegree &&
+            degree > 0) ||
+        (chopstick!.topRight.dx < topLeftLimitation.dx &&
+            degree > -maximumDegree &&
+            degree < 0)) {
       overflowDegree ??= degree;
+
       /// right, up, down
-      if (details.delta.dx > 0 || details.delta.dy < 0 || details.delta.dy > 0) {
-        if(degree > overflowDegree!) {
-          newRotationPoint = bottomLeftLimitation;
+      if (details.delta.dx > 0 ||
+          details.delta.dy < 0 ||
+          details.delta.dy > 0) {
+        if (degree.abs() > overflowDegree!.abs()) {
+          newRotationPoint =
+              degree > 0 ? bottomLeftLimitation : topLeftLimitation;
         } else {
           newRotationPoint = null;
         }
-      /// left
+
+        /// left
       } else if (details.delta.dx < 0) {
-        newRotationPoint = bottomLeftLimitation;
+        newRotationPoint =
+            degree > 0 ? bottomLeftLimitation : topLeftLimitation;
       }
+
       /// reset overflow
-    }  else if((chopstick!.bottomRight.dx).round() > bottomLeftLimitation.dx && degree < 60) {
+    } else if (((chopstick!.bottomRight.dx).round() > bottomLeftLimitation.dx &&
+            degree < maximumDegree &&
+            degree > 0) ||
+        ((chopstick!.topRight.dx).round() > topLeftLimitation.dx &&
+            degree > -maximumDegree &&
+            degree < 0)) {
       overflowDegree = null;
     }
 
     /// update range first
     var chopstickRange = (paper_size.width - localPosition.dx) / pi;
     chopstick!.updateRange(localPosition, chopstickRange);
+    var noRotateChopstick = chopstick!.copyWith();
+
     fontLayerWidth = localPosition.dx + chopstickRange;
 
     /// reach [bottomLeftLimitation], move to that offset and rotate around that point
-    if(newRotationPoint != null) {
-      var offset =
-      (bottomLeftLimitation.dx - chopstick!.bottomRight.dx).abs();
+    if (newRotationPoint != null) {
+      double offset;
+      if (degree > 0) {
+        offset = (bottomLeftLimitation.dx - chopstick!.bottomRight.dx).abs();
+      } else {
+        offset = (topLeftLimitation.dx - chopstick!.topRight.dx).abs();
+      }
       chopstick = chopstick!.translateXby(offset);
     }
 
-    /// maximum degree 54
     var newPivotChopstick = chopstick!.copyWith()
       ..rotateBy(degree, pivot: newRotationPoint ?? touchPoint);
     chopstick = newPivotChopstick;
 
-    findBottomCornerPoints(localPosition, chopstickRange, degree);
+    findBottomCornerPoints(
+        localPosition, chopstickRange, noRotateChopstick, degree);
+
+    findTopCornerPoints(
+        localPosition, chopstickRange, noRotateChopstick, degree);
+
+    bottomFoldPoint =
+        getSupportFoldPoint(chopstick!, degree, maximumDegree);
+
+    topFoldPoint =
+        getSupportFoldPoint(chopstick!, degree, maximumDegree);
+
+    findBezierPoint(degree);
   }
 
   void onPanUpdate(Offset localPosition, {bool? test}) {
@@ -401,7 +439,6 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
     if (paper_size.width - localPosition.dx < 22) {
       return;
     }
-
 
     if (chopstick == null) {
       startPoint = localPosition;
@@ -413,18 +450,15 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
     var dx = startPoint.dx - touchPoint.dx;
 
     var degree = 0.0;
-    // var kRotation [0.8 -  0.5]  ------ dx [0, 393]   
-    var kRotation =  mapRange2Range(value: dx, oldMin: 0, oldMax: 393, newMin: 0.8, newMax: 0.1);
+    // var kRotation [0.8 -  0.5]  ------ dx [0, 393]
+    var kRotation = mapRange2Range(
+        value: dx, oldMin: 0, oldMax: 393, newMin: 0.8, newMax: 0.1);
     // print("krotation $kRotation");
     degree = dy * kRotation;
 
     /// returnAngle by dy.
     /// 10 - 5
     ///
-
-
-
-
 
     /// imagine that the touch position will be on the half of the circle
     var chopstickRange = (paper_size.width - localPosition.dx) / pi;
@@ -448,7 +482,7 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
     ///
     fontLayerWidth = localPosition.dx + chopstickRange;
 
-    if (degree == 0 ) {
+    if (degree == 0) {
       return;
     }
     print("degree $degree");
@@ -469,19 +503,20 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
           ? getClockwiseChopstick(degree, localPosition)
           : getUClockwiseChopstick(degree);
     } else {
-      if(degree < overflowDegree!) {
+      if (degree < overflowDegree!) {
         isBottomCornerOverflow = false;
       } else {
         // var revertChopstick = chopstick!.revertRotation();
         var handlingChopstick;
-        if(cancelUpdateRange) {
+        if (cancelUpdateRange) {
           handlingChopstick = chopstick!.revertRotation();
         } else {
           handlingChopstick = chopstick;
         }
-        var freezeAngleChopstick =  handlingChopstick!.copyWith()..rotateBy(overflowDegree!, pivot: touchPoint);
+        var freezeAngleChopstick = handlingChopstick!.copyWith()
+          ..rotateBy(overflowDegree!, pivot: touchPoint);
 
-        if(freezeAngleChopstick.bottomRight.dx < bottomLeftLimitation.dx) {
+        if (freezeAngleChopstick.bottomRight.dx < bottomLeftLimitation.dx) {
           chopstick!.rotateBy(overflowDegree!, pivot: chopstick!.pivot);
 
           // if(cancelUpdateRange == true) {
@@ -492,13 +527,13 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
           //     // handlingChopstick!.rotateBy(
           //     //     overFlowDegree!, pivot: chopstick!.pivot);
           // }
-            // if (dx > (degree - overFlowDegree!)) {
-            //   cancelUpdateRange = false;
-            //   handlingChopstick!.rotateBy(
-            //       overFlowDegree!, pivot: chopstick!.pivot);
-            // } else {
-            //   cancelUpdateRange = true;
-            // }
+          // if (dx > (degree - overFlowDegree!)) {
+          //   cancelUpdateRange = false;
+          //   handlingChopstick!.rotateBy(
+          //       overFlowDegree!, pivot: chopstick!.pivot);
+          // } else {
+          //   cancelUpdateRange = true;
+          // }
 
           // var handlingChopstick;
           // if(cancelUpdateRange) {
@@ -519,20 +554,13 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
           //     cancelUpdateRange = true;
           //   }
           // }
-
-
-
         } else {
           chopstick = freezeAngleChopstick;
         }
 
-
-
         /// find bottom corner point
-        var amountToMiddle = ((paper_size.width -
-            (localPosition.dx)) /
-            2) -
-            chopstick!.range;
+        var amountToMiddle =
+            ((paper_size.width - (localPosition.dx)) / 2) - chopstick!.range;
 
         testBottomCornerPoint = TwoDFormula.findSymmetricPoint(
             Offset(paper_size.width, -paper_size.height),
@@ -546,13 +574,10 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
             Offset(testBottomCornerPoint.dx, -testBottomCornerPoint.dy);
       }
 
-      if(dx != 0 && degree != 0) {
-        var newDy = dx * cos(degree * (pi / 180)) ;
+      if (dx != 0 && degree != 0) {
+        var newDy = dx * cos(degree * (pi / 180));
       }
     }
-
-
-
 
     var maximumDegree = TwoDFormula.angleBetweenLines(
         chopstick!.center.dx + chopstick!.range / 2,
@@ -590,59 +615,57 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
 
     // var newChopstick = chopstick!.copyWith()..rotateBy(degree);
     // if (newChopstick.topRight.dx >= topRightLimitation.dx) {
-      var newPivotChopstick = chopstick!.copyWith()
-        ..rotateBy(degree, pivot: touchPoint);
+    var newPivotChopstick = chopstick!.copyWith()
+      ..rotateBy(degree, pivot: touchPoint);
 
-      /// find bottom corner point
-      var amountToMiddle = ((paper_size.width -
-                  (localPosition.dx - newPivotChopstick.range / 2)) /
-              2) -
-          newPivotChopstick.range;
+    /// find bottom corner point
+    var amountToMiddle =
+        ((paper_size.width - (localPosition.dx - newPivotChopstick.range / 2)) /
+                2) -
+            newPivotChopstick.range;
 
-      testBottomCornerPoint = TwoDFormula.findSymmetricPoint(
-          Offset(paper_size.width, -paper_size.height),
-          Offset(newPivotChopstick!.bottomRight.dx + amountToMiddle,
-              -newPivotChopstick!.bottomRight.dy),
-          Offset(newPivotChopstick!.topRight.dx + amountToMiddle,
-              -newPivotChopstick!.topRight.dy));
+    testBottomCornerPoint = TwoDFormula.findSymmetricPoint(
+        Offset(paper_size.width, -paper_size.height),
+        Offset(newPivotChopstick!.bottomRight.dx + amountToMiddle,
+            -newPivotChopstick!.bottomRight.dy),
+        Offset(newPivotChopstick!.topRight.dx + amountToMiddle,
+            -newPivotChopstick!.topRight.dy));
 
-      /// Revert to dart coordinate
-      testBottomCornerPoint =
-          Offset(testBottomCornerPoint.dx, -testBottomCornerPoint.dy);
+    /// Revert to dart coordinate
+    testBottomCornerPoint =
+        Offset(testBottomCornerPoint.dx, -testBottomCornerPoint.dy);
 
-      if (newPivotChopstick.bottomRight.dx > bottomLeftLimitation.dx) {
-        if (newPivotChopstick.topRight.dy > testBottomCornerPoint.dy &&
-            (newPivotChopstick.topRight.dy - testBottomCornerPoint.dy) > 50) {
-          chopstick = newPivotChopstick;
+    if (newPivotChopstick.bottomRight.dx > bottomLeftLimitation.dx) {
+      if (newPivotChopstick.topRight.dy > testBottomCornerPoint.dy &&
+          (newPivotChopstick.topRight.dy - testBottomCornerPoint.dy) > 50) {
+        chopstick = newPivotChopstick;
 
-          // print("chopstick after rotate ${newPivotChopstick}");
-          overflowDegree = chopstick!.angle;
-          isBottomCornerOverflow = true;
-          // var overFlowBottomCornerRotateChopstick = chopstick!..rotateBy(overFlowDegree!, pivot: touchPoint);
-          //
-          // if(degree < overFlowDegree!) {
-          //   isBottomCornerOverflow = false;
-          // } else {
-          //   var revertChopstick = chopstick!.revertRotation();
-          //   var rotatedRevertChopstick = revertChopstick
-          //     ..rotateBy(overFlowDegree!, pivot: touchPoint);
-          //   if (rotatedRevertChopstick.bottomRight.dx <
-          //       bottomLeftLimitation.dx) {
-          //     print("chopstick");
-          //     return;
-          //   } else {
-          //     chopstick = rotatedRevertChopstick;
-          //   }
-          // }
-          /// overflow
+        // print("chopstick after rotate ${newPivotChopstick}");
+        overflowDegree = chopstick!.angle;
+        isBottomCornerOverflow = true;
+        // var overFlowBottomCornerRotateChopstick = chopstick!..rotateBy(overFlowDegree!, pivot: touchPoint);
+        //
+        // if(degree < overFlowDegree!) {
+        //   isBottomCornerOverflow = false;
+        // } else {
+        //   var revertChopstick = chopstick!.revertRotation();
+        //   var rotatedRevertChopstick = revertChopstick
+        //     ..rotateBy(overFlowDegree!, pivot: touchPoint);
+        //   if (rotatedRevertChopstick.bottomRight.dx <
+        //       bottomLeftLimitation.dx) {
+        //     print("chopstick");
+        //     return;
+        //   } else {
+        //     chopstick = rotatedRevertChopstick;
+        //   }
+        // }
+        /// overflow
 
-
-          return;
-        } else {
-        }
+        return;
       } else {}
+    } else {}
 
-      chopstick = newPivotChopstick;
+    chopstick = newPivotChopstick;
     // } else {
     //   chopstick = newChopstick;
     // }
@@ -710,33 +733,44 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
     // print("chopstick $chopstick");
   }
 
+  /// duong thang tu corner to bottom, now to have to the fold point
+  /// diem start corner point, diem end center.
+  /// keo dai tu corner point toi diem duoi
+  /// diem start bezier bang giao diem giua left 2 diem ngoai voi duong thang corner va bottom
   void findBezierPoint(double angle) {
     /// bezier start = 1/3 [bottomCornerPoint] point to [chopstick.topRight] point
-    if (angle < 0) {
-      return;
-    }
-    var bottomCornerOxy = Offset(bottomCornerPoint.dx, -bottomCornerPoint.dy);
-    var topRightChopstickOxy =
-        Offset(chopstick!.topRight.dx, chopstick!.topRight.dy);
 
-    bezierStart = touchPoint;
+    bezierStart = TwoDFormula.twoLineIntersection(
+        TwoDFormula.convert2OxyCoordinates(chopstick!.topLeft),
+        TwoDFormula.convert2OxyCoordinates(chopstick!.bottomLeft),
+        TwoDFormula.convert2OxyCoordinates(
+            angle > 0 ? bottomCornerPoint : topCornerPoint),
+        TwoDFormula.convert2OxyCoordinates(
+            angle > 0 ? chopstick!.topRight : chopstick!.bottomRight));
 
-    bezierEnd = chopstick!.topRight.dx < topRightLimitation.dx
-        ? topCornerPoint
-        : chopstick!.centerTop;
+    bezierEnd = TwoDFormula.convert2OxyCoordinates(
+        angle > 0 ? chopstick!.centerTop : chopstick!.centerBottom);
 
-    /// use conic beizer curve
-    // bezierControlPoint =
-    //endpoint.dx - 5, startPoint.y + 3
+    bezierControlPoint = TwoDFormula.findPointOnPerpendicularBisector(
+        bezierStart!, bezierEnd!, 15, angle > 0 ? false : true);
+
+    bezierStart = TwoDFormula.revert2DartCoordinates(bezierStart!);
+    bezierEnd = TwoDFormula.revert2DartCoordinates(bezierEnd!);
+    bezierControlPoint =
+        TwoDFormula.revert2DartCoordinates(bezierControlPoint!);
   }
 
-  void findBottomCornerPoints(Offset localPosition, double chopstickRange, double degree) {
+  void findBottomCornerPoints(Offset localPosition, double chopstickRange,
+      Chopstick noRotateChopstick, double degree) {
     if (degree < 0) {
       return;
     }
+    // var amountToMiddle =
+    //     ((paper_size.width - (localPosition.dx - chopstickRange / 2)) / 2) -
+    //         chopstickRange;
+
     var amountToMiddle =
-        ((paper_size.width - (localPosition.dx - chopstickRange / 2)) / 2) -
-            chopstickRange;
+        ((paper_size.width - localPosition.dx) / 2) - chopstickRange;
 
     /// Find bottom corner point
     bottomCornerPoint = TwoDFormula.findSymmetricPoint(
@@ -745,23 +779,35 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
             -chopstick!.bottomRight.dy),
         Offset(
             chopstick!.topRight.dx + amountToMiddle, -chopstick!.topRight.dy));
-    //
-    // if (degree > 0 && chopstick!.topRight.dx <= topRightLimitation.dx) {
+
+    topCornerPoint = chopstick!.centerTop;
+    var explodeAmount = 3.0;
+    var offsetExplode = Offset(0, 0);
+    if (degree > 0 && chopstick!.topRight.dx < paper_size.width) {
+      offsetExplode = Offset(explodeAmount, 0);
+    } else if (degree > 0 && chopstick!.topRight.dx == paper_size.width) {
+      offsetExplode = Offset(0, explodeAmount);
+    }
+
+    topCornerPoint = Offset(topCornerPoint.dx + offsetExplode.dx,
+        topCornerPoint.dy + offsetExplode.dy);
+
+    //   if (degree > 0 ) {
     //   /// Find top corner point
     //   var noRotateBottomCornerPoint = Offset(
     //       noRotateChopstick.bottomLeft.dx, -noRotateChopstick.bottomLeft.dy);
     //   var dxBottomCornerDiff =
-    //       (bottomCornerPoint.dx - noRotateBottomCornerPoint.dx).abs();
+    //       (bottomCornerPoint.dx - noRotateBottomCornerPoint.dx).abs() * 2;
     //   var dyBottomCornerDiff =
-    //       (bottomCornerPoint.dy - noRotateBottomCornerPoint.dy).abs();
+    //       (bottomCornerPoint.dy - noRotateBottomCornerPoint.dy).abs() * 2;
     //
     //   var noRotateTopCornerPoint = noRotateChopstick.topLeft;
     //   topCornerPoint = Offset(noRotateTopCornerPoint.dx + dxBottomCornerDiff,
     //       noRotateTopCornerPoint.dy + dyBottomCornerDiff);
     //   topCornerPoint = TwoDFormula.findIntersectionWithHorizontalLine(
     //       bottomCornerPoint, topCornerPoint, 0)!;
-    //   // var explodeAmount = const Offset(3, 3);
-    //   var explodeAmount = const Offset(0, 0);
+    //   var explodeAmount = const Offset(3, 3);
+    //   // var explodeAmount = const Offset(0, 0);
     //   topCornerPoint =
     //       Offset(topCornerPoint.dx + explodeAmount.dx, topCornerPoint.dy);
     //
@@ -780,9 +826,13 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
     if (degree > 0) {
       return;
     }
+    // var amountToMiddle =
+    //     ((paper_size.width - (localPosition.dx - chopstickRange / 2)) / 2) -
+    //         chopstickRange;
+
+    ///\
     var amountToMiddle =
-        ((paper_size.width - (localPosition.dx - chopstickRange / 2)) / 2) -
-            chopstickRange;
+        ((paper_size.width - localPosition.dx) / 2) - chopstickRange;
 
     /// Find top corner point
     topCornerPoint = TwoDFormula.findSymmetricPoint(
@@ -792,27 +842,42 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
         Offset(
             chopstick!.topRight.dx + amountToMiddle, -chopstick!.topRight.dy));
 
-    if (degree < 0 && chopstick!.bottomRight.dx <= bottomRightLimitation.dx) {
-      /// Find bot corner point
-      var noRotateTopCornerPoint =
-          Offset(noRotateChopstick.topLeft.dx, -noRotateChopstick.topLeft.dy);
-      var dxTopCornerDiff =
-          (topCornerPoint.dx - noRotateTopCornerPoint.dx).abs();
-      var dyTopCornerDiff =
-          (topCornerPoint.dy - noRotateTopCornerPoint.dy).abs();
-
-      var noRotateBottomCornerPoint = noRotateChopstick.bottomLeft;
-      bottomCornerPoint = Offset(noRotateBottomCornerPoint.dx + dxTopCornerDiff,
-          -noRotateBottomCornerPoint.dy - dyTopCornerDiff);
-      bottomCornerPoint = TwoDFormula.findIntersectionWithHorizontalLine(
-          topCornerPoint, bottomCornerPoint, -paper_size.height)!;
-      var explodeAmount = const Offset(3, 3);
-      bottomCornerPoint =
-          Offset(bottomCornerPoint.dx + explodeAmount.dx, bottomCornerPoint.dy);
-
-      /// Revert to dart coordinate
-      bottomCornerPoint = Offset(bottomCornerPoint.dx, -bottomCornerPoint.dy);
+    bottomCornerPoint = chopstick!.centerBottom;
+    var explodeAmount = 3.0;
+    var offsetExplode = Offset(0, 0);
+    if (degree < 0 && chopstick!.bottomRight.dx < paper_size.width) {
+      offsetExplode = Offset(explodeAmount, 0);
+    } else if (degree < 0 && chopstick!.bottomRight.dx == paper_size.width) {
+      offsetExplode = Offset(0, explodeAmount);
     }
+
+    bottomCornerPoint = Offset(bottomCornerPoint.dx + offsetExplode.dx,
+        bottomCornerPoint.dy + offsetExplode.dy);
+
+    ///
+
+    //
+    // if (degree < 0 && chopstick!.bottomRight.dx <= bottomRightLimitation.dx) {
+    //   /// Find bot corner point
+    //   var noRotateTopCornerPoint =
+    //       Offset(noRotateChopstick.topLeft.dx, -noRotateChopstick.topLeft.dy);
+    //   var dxTopCornerDiff =
+    //       (topCornerPoint.dx - noRotateTopCornerPoint.dx).abs() * 2;
+    //   var dyTopCornerDiff =
+    //       (topCornerPoint.dy - noRotateTopCornerPoint.dy).abs() * 2;
+    //
+    //   var noRotateBottomCornerPoint = noRotateChopstick.bottomLeft;
+    //   bottomCornerPoint = Offset(noRotateBottomCornerPoint.dx + dxTopCornerDiff,
+    //       -noRotateBottomCornerPoint.dy - dyTopCornerDiff);
+    //   bottomCornerPoint = TwoDFormula.findIntersectionWithHorizontalLine(
+    //       topCornerPoint, bottomCornerPoint, -paper_size.height)!;
+    //   var explodeAmount = const Offset(3, 3);
+    //   bottomCornerPoint =
+    //       Offset(bottomCornerPoint.dx + explodeAmount.dx, bottomCornerPoint.dy);
+    //
+    //   /// Revert to dart coordinate
+    //   bottomCornerPoint = Offset(bottomCornerPoint.dx, -bottomCornerPoint.dy);
+    // }
 
     topCornerPoint = Offset(topCornerPoint.dx, -topCornerPoint.dy);
   }
@@ -829,31 +894,30 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
 
   /// TODO: rename this function
   /// draw the curl from dóng thẳng từ coner point xuống, điểm uốn là fold point, điểm kết thúc là corner point
-  Offset getSupportFoldPoint(Chopstick chopstick, double degree, maximumDegree,
-      {bool? isTop}) {
+  Offset getSupportFoldPoint(Chopstick chopstick, double degree, maximumDegree) {
     /// Run from 0 - 20
     var cornerRunValue = 0.0;
-    if (degree < maximumDegree) {
-      cornerRunValue = degree * 20 / maximumDegree;
+    if (degree.abs() < maximumDegree) {
+      cornerRunValue = degree.abs() * 20 / maximumDegree;
     } else {
       cornerRunValue = 20;
     }
 
     /// offset of horizontal line
     var m = 0.0;
-    if (isTop == true) {
+    if (degree < 0) {
       m = -cornerRunValue;
     } else {
       m = -paper_size.height + cornerRunValue;
     }
 
-    var bottomFoldPoint = TwoDFormula.findIntersectionWithHorizontalLine(
+    var supportFoldPoint = TwoDFormula.findIntersectionWithHorizontalLine(
         Offset(chopstick.bottomRight.dx, -chopstick.bottomRight.dy),
         Offset(chopstick.topRight.dx, -chopstick.topRight.dy),
         m);
 
     /// Revert to dart coordinate
-    return Offset(bottomFoldPoint!.dx, -bottomFoldPoint.dy);
+    return Offset(supportFoldPoint!.dx, -supportFoldPoint.dy);
   }
 
   void getUClockwiseChopstick(double degree) {
@@ -910,13 +974,12 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
   void testRotate() {
     setState(() {
       // chopstick!.rotateBy(5);
-      if(step ==1 ) {
+      if (step == 1) {
         startPoint = Offset(393, 560.7);
         // onPanUpdate(Offset(336, 486.7));
         // testNewMethod(Offset(336, 486.7));
         testNewMethod(Offset(300, 486.7));
-
-      } else if(step == 2){
+      } else if (step == 2) {
         // onPanUpdate(Offset(300, 486.7));
         // testNewMethod(Offset(300, 486.7));
         print("step 2");
@@ -1031,16 +1094,39 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
             decoration: const BoxDecoration(
                 shape: BoxShape.circle, color: Colors.purple),
           )),
-      Positioned(
-          left: testBottomCornerPoint.dx - 5,
-          top: testBottomCornerPoint.dy - 5,
-          child: Container(
-            height: 10,
-            width: 10,
-            child: Text("b"),
-            decoration:
-                const BoxDecoration(shape: BoxShape.circle, color: Colors.teal),
-          )),
+      if (bezierStart != null)
+        Positioned(
+            left: bezierStart!.dx - 5,
+            top: bezierStart!.dy - 5,
+            child: Container(
+              height: 10,
+              width: 10,
+              child: Text("b"),
+              decoration: const BoxDecoration(
+                  shape: BoxShape.circle, color: Colors.purple),
+            )),
+      if (bezierEnd != null)
+        Positioned(
+            left: bezierEnd!.dx - 5,
+            top: bezierEnd!.dy - 5,
+            child: Container(
+              height: 10,
+              width: 10,
+              child: Text("b"),
+              decoration: const BoxDecoration(
+                  shape: BoxShape.circle, color: Colors.purple),
+            )),
+      if (bezierControlPoint != null)
+        Positioned(
+            left: bezierControlPoint!.dx - 5,
+            top: bezierControlPoint!.dy - 5,
+            child: Container(
+              height: 10,
+              width: 10,
+              child: Text("b"),
+              decoration: const BoxDecoration(
+                  shape: BoxShape.circle, color: Colors.purple),
+            )),
       if (bottomFoldPoint != null)
         Positioned(
             left: bottomFoldPoint!.dx - 5,
@@ -1073,17 +1159,7 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
             decoration: const BoxDecoration(
                 shape: BoxShape.circle, color: Colors.purple),
           )),
-      if (newRotationPoint != null)
-      Positioned(
-          left: newRotationPoint!.dx - 5,
-          top: newRotationPoint!.dy - 5,
-          child: Container(
-            height: 10,
-            width: 10,
-            child: Text("t"),
-            decoration: const BoxDecoration(
-                shape: BoxShape.circle, color: Colors.purple),
-          )),
+
       // Positioned(
       //     left: chopstick.centerTop.dx - 5 ?? 0,
       //     top: chopstick.centerTop.dy - 5 ?? 0,
@@ -1437,18 +1513,17 @@ class Chopstick {
       this.centerBottom,
       this.range,
       this.angle,
-      this.pivot
-      );
+      this.pivot);
 
   rotateBy(double degree,
 
       /// if != null, rotate around this point
       {Offset? pivot}) {
     late Offset centerOxy;
-    if(pivot != null) {
+    if (pivot != null) {
       this.pivot = Offset(pivot.dx, -pivot.dy);
       centerOxy = Offset(pivot.dx, -pivot.dy);
-    }  else {
+    } else {
       centerOxy = Offset(center.dx, -center.dy);
     }
     var topLeftOxy = Offset(topLeft.dx, -topLeft.dy);
@@ -1468,7 +1543,6 @@ class Chopstick {
     centerBottomOxy = Offset(
         bottomLeftOxy.dx + (bottomRightOxy.dx - bottomLeftOxy.dx) / 2,
         bottomLeftOxy.dy - (bottomLeftOxy.dy - bottomRightOxy.dy) / 2);
-
 
     /// MARK: top
     // /// Find intersection between the right chopstick line (topRight and bottomRight) and top (Ox)
@@ -1579,8 +1653,7 @@ class Chopstick {
         centerBottom ?? this.centerBottom,
         range ?? this.range,
         angle ?? this.angle,
-        pivot ?? this.pivot
-    );
+        pivot ?? this.pivot);
   }
 
   Chopstick translateXby(double offset) {
@@ -1596,8 +1669,6 @@ class Chopstick {
   }
 
   Chopstick revertRotation() {
-
-
     var topLeftOxy = Offset(this.topLeft.dx, -this.topLeft.dy);
     var topRightOxy = Offset(this.topRight.dx, -this.topRight.dy);
     var bottomLeftOxy = Offset(this.bottomLeft.dx, -this.bottomLeft.dy);
@@ -1611,19 +1682,21 @@ class Chopstick {
 
     ///
     var topLeadingIntersection =
-    TwoDFormula.findIntersectionWithOX(bottomLeftOxy, topLeftOxy);
+        TwoDFormula.findIntersectionWithOX(bottomLeftOxy, topLeftOxy);
     var topTrailingIntersection =
-    TwoDFormula.findIntersectionWithOX(bottomRightOxy, topRightOxy);
+        TwoDFormula.findIntersectionWithOX(bottomRightOxy, topRightOxy);
     var bottomLeadingIntersection =
-    TwoDFormula.findIntersectionWithHorizontalLine(
-        bottomLeftOxy, topLeftOxy, -paperSize.height);
+        TwoDFormula.findIntersectionWithHorizontalLine(
+            bottomLeftOxy, topLeftOxy, -paperSize.height);
 
     var bottomTrailingIntersection =
-    TwoDFormula.findIntersectionWithHorizontalLine(
-        bottomRightOxy, topRightOxy, -paperSize.height);
+        TwoDFormula.findIntersectionWithHorizontalLine(
+            bottomRightOxy, topRightOxy, -paperSize.height);
 
-    var topLeft = Offset(topLeadingIntersection!.dx, -topLeadingIntersection!.dy);
-    var topRight = Offset(topTrailingIntersection!.dx, -topTrailingIntersection.dy);
+    var topLeft =
+        Offset(topLeadingIntersection!.dx, -topLeadingIntersection!.dy);
+    var topRight =
+        Offset(topTrailingIntersection!.dx, -topTrailingIntersection.dy);
     var bottomLeft =
         Offset(bottomLeadingIntersection!.dx, -bottomLeadingIntersection.dy);
     var bottomRight =
@@ -1634,17 +1707,16 @@ class Chopstick {
     var centerBottom = Offset(topLeft.dx + (range / 2), paperSize.height);
 
     return copyWith(
-      topLeft: topLeft,
-      topRight: topRight,
-      bottomLeft: bottomLeft,
-      bottomRight: bottomRight,
-      angle: angle,
+        topLeft: topLeft,
+        topRight: topRight,
+        bottomLeft: bottomLeft,
+        bottomRight: bottomRight,
+        angle: angle,
         pivot: null,
-      center: center,
-      centerTop: centerTop,
-      centerBottom: centerBottom
-
-    )..rotateBy(-angle, pivot: center);
+        center: center,
+        centerTop: centerTop,
+        centerBottom: centerBottom)
+      ..rotateBy(-angle, pivot: center);
   }
 
   @override

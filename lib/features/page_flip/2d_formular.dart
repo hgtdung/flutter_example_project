@@ -122,4 +122,73 @@ class TwoDFormula {
 
     return Offset(xSymmetric, ySymmetric);
   }
+
+  static Offset? twoLineIntersection(Offset p1, Offset p2, Offset p3, Offset p4) {
+    double denominator = (p1.dx - p2.dx) * (p3.dy - p4.dy) - (p1.dy - p2.dy) * (p3.dx - p4.dx);
+
+    // If denominator is zero, the lines are parallel or coincident
+    if (denominator == 0) {
+      return null; // No intersection
+    }
+
+    double t = ((p1.dx - p3.dx) * (p3.dy - p4.dy) - (p1.dy - p3.dy) * (p3.dx - p4.dx)) / denominator;
+    double u = ((p1.dx - p3.dx) * (p1.dy - p2.dy) - (p1.dy - p3.dy) * (p1.dx - p2.dx)) / denominator;
+
+    // If 0 <= t <= 1 and 0 <= u <= 1, the intersection point is on both line segments
+    if (t >= 0 && t <= 1 && u >= 0 && u <= 1) {
+      double dx = p1.dx + t * (p2.dx - p1.dx);
+      double dy = p1.dy + t * (p2.dy - p1.dy);
+      return Offset(dx, dy);
+    }
+
+    return null; // The intersection is outside the line segments
+  }
+  static Offset convert2OxyCoordinates(Offset offset) {
+      return Offset(offset.dx, -offset.dy);
+  }
+
+  static Offset revert2DartCoordinates(Offset offset) {
+    return Offset(offset.dx, -offset.dy);
+  }
+
+
+
+  static Offset? findPointOnPerpendicularBisector(Offset a, Offset b, double distance, bool below) {
+    // Tính trung điểm M của AB
+    double midX = (a.dx + b.dx) / 2;
+    double midY = (a.dy + b.dy) / 2;
+    Offset midPoint = Offset(midX, midY);
+
+    // Tính vector vuông góc với AB (AB vuông góc với -dy, dx)
+    double dx = b.dx - a.dx;
+    double dy = b.dy - a.dy;
+
+    // Vector vuông góc (dx, dy) -> (-dy, dx)
+    double perpX = -dy;
+    double perpY = dx;
+
+    // Độ dài vector vuông góc
+    double perpLength = sqrt(perpX * perpX + perpY * perpY);
+
+    // Đơn vị hóa vector vuông góc
+    double unitPerpX = perpX / perpLength;
+    double unitPerpY = perpY / perpLength;
+
+    // Tính hai điểm trên đường trung trực cách M một đoạn distance
+    Offset p1 = Offset(midPoint.dx + unitPerpX * distance, midPoint.dy + unitPerpY * distance);
+    Offset p2 = Offset(midPoint.dx - unitPerpX * distance, midPoint.dy - unitPerpY * distance);
+
+    // Chỉ lấy điểm nằm dưới đường thẳng AB (y < midY)
+    if (below) {
+      return p1;
+    } else {
+      return p2;
+    }
+  }
+}
+
+class Point {
+  final double x, y;
+
+  Point(this.x, this.y);
 }
