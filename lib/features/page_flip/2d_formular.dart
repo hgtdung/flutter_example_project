@@ -185,6 +185,129 @@ class TwoDFormula {
       return p2;
     }
   }
+
+  static Offset rotateAround(Offset pointA, Offset pivotB, double angle) {
+    double angleRadian = -angle * (pi / 180);
+    // Translate A relative to B
+    final double translatedX = pointA.dx - pivotB.dx;
+    final double translatedY = pointA.dy - pivotB.dy;
+
+    // Perform rotation
+    final double rotatedX =
+        translatedX * cos(angleRadian) - translatedY * sin(angleRadian);
+
+    final double rotatedY =
+        translatedX * sin(angleRadian) + translatedY * cos(angleRadian);
+
+    // Translate back to the original position relative to B
+    final double finalX = rotatedX + pivotB.dx;
+    final double finalY = rotatedY + pivotB.dy;
+
+    var finalResult = Offset(finalX, finalY);
+    return finalResult;
+  }
+
+  static Offset? findConicInflectionPoint(Offset p0, Offset p1, Offset p2, double w) {
+    // Compute weighted control point
+    double wx1 = w * p1.dx;
+    double wy1 = w * p1.dy;
+
+    // Inflection condition
+    double dx = p2.dx - 2 * wx1 + p0.dx;
+    double dy = p2.dy - 2 * wy1 + p0.dy;
+
+    // If dx == 0 and dy == 0, no inflection exists
+    if (dx.abs() < 1e-10 && dy.abs() < 1e-10) {
+      return null; // No inflection point
+    }
+
+    // Parameter t for inflection
+    double t = 0.5; // Inflection for quadratic conics typically occurs at t = 0.5
+
+    // Compute coordinates at t = 0.5
+    double denominator = (1 - t) * (1 - t) + 2 * w * (1 - t) * t + t * t;
+    double x = ((1 - t) * (1 - t) * p0.dx + 2 * w * (1 - t) * t * p1.dx + t * t * p2.dx) / denominator;
+    double y = ((1 - t) * (1 - t) * p0.dy + 2 * w * (1 - t) * t * p1.dy + t * t * p2.dy) / denominator;
+
+    return Offset(x, y);
+  }
+
+  /// p0 start, p2 end, Q is the reflection point
+  static Offset calculateControlPoint(Offset p0, Offset p2, Offset q) {
+    double x1 = 2 * q.dx - 0.5 * p0.dx - 0.5 * p2.dx;
+    double y1 = 2 * q.dy - 0.5 * p0.dy - 0.5 * p2.dy;
+    // double x1 = q.dx - 0.5625 * p0.dx - 0.0625 * p2.dx;
+    // double y1 = q.dy - 0.5625 * p0.dy - 0.0625 * p2.dy;
+    return Offset(x1, y1);
+  }
+
+
+  static Offset findPointRelativeToSegment(Offset a, Offset b, double ratio, double m) {
+    // Tính tọa độ điểm C (nằm trên đoạn AB với tỷ lệ cho trước)
+    var A = convert2OxyCoordinates(a);
+    var B = convert2OxyCoordinates(b);
+    double cx = A.dx + ratio * (B.dx - A.dx);
+    double cy = A.dy + ratio * (B.dy - A.dy);
+    Offset cPoint = Offset(cx, cy);
+
+    // Vector pháp tuyến của đoạn AB
+    double abx = B.dx - A.dx;
+    double aby = B.dy - A.dy;
+    double normalX = -aby;
+    double normalY = abx;
+
+    // Chuẩn hóa vector pháp tuyến
+    double normalLength = sqrt(normalX * normalX + normalY * normalY);
+    double unitNormalX = normalX / normalLength;
+    double unitNormalY = normalY / normalLength;
+
+    // Tính tọa độ điểm cách C một đoạn m theo vector pháp tuyến
+    double offsetX = m * unitNormalX;
+    double offsetY = m * unitNormalY;
+
+    Offset pointAbove = Offset(cPoint.dx + offsetX, cPoint.dy + offsetY);
+    Offset pointBelow = Offset(cPoint.dx - offsetX, cPoint.dy - offsetY);
+
+    // Xác định điểm phía trên đoạn thẳng bằng điều kiện vector pháp tuyến hướng lên
+    if (unitNormalY > 0) {
+      return revert2DartCoordinates(pointAbove);
+    } else {
+      return revert2DartCoordinates(pointBelow);
+    }
+  }
+
+
+  static Offset calculateConicPoint(double t, Offset p0, Offset p1, Offset p2, double weight) {
+    double denominator = pow(1 - t, 2) + 2 * (1 - t) * t * weight + pow(t, 2);
+    double x = ((pow(1 - t, 2) * p0.dx) +
+        (2 * (1 - t) * t * weight * p1.dx) +
+        (pow(t, 2) * p2.dx)) /
+        denominator;
+    double y = ((pow(1 - t, 2) * p0.dy) +
+        (2 * (1 - t) * t * weight * p1.dy) +
+        (pow(t, 2) * p2.dy)) /
+        denominator;
+    return Offset(x, y);
+  }
+
+  // Function to calculate the point on the conic curve for parameter t
+  static Offset getPointOnConicCurve(double t, Offset start, Offset control, Offset end, double weight) {
+    double numeratorX = (1 - t) * (1 - t) * start.dx +
+        2 * (1 - t) * t * control.dx * weight +
+        t * t * end.dx;
+
+    double numeratorY = (1 - t) * (1 - t) * start.dy +
+        2 * (1 - t) * t * control.dy * weight +
+        t * t * end.dy;
+
+    double denominator = (1 - t) * (1 - t) + 2 * (1 - t) * t * weight + t * t;
+
+    double x = numeratorX / denominator;
+    double y = numeratorY / denominator;
+
+    return Offset(x, y);
+  }
+
 }
 
 class Point {
