@@ -103,10 +103,7 @@ class _PageFlipWidgetVer2State extends State<PageFlipWidgetVer2>
           alignment: Alignment.bottomLeft,
           child: GestureDetector(
             onPanUpdate: (panUpdate) {
-              // print("dsd ${panUpdate.localPosition}");
               onPanUpdateVer2(panUpdate.localPosition, panUpdate);
-              // onPanUpdate(panUpdate.localPosition);
-              // testNewMethod(panUpdate.localPosition);
               setState(() {
               });
             },
@@ -524,10 +521,10 @@ class _PageFlipWidgetVer2State extends State<PageFlipWidgetVer2>
     double runValue;
     if(perpendicularDegree == null) {
       /// map value from [0, perpendicularDegree] to [0,40]
-        runValue = ((chopstick.angle.abs()) * 40) / maximumDegree;
+        runValue = ((chopstick.angle.abs()) * 30) / maximumDegree;
     } else {
       /// map value from [perpendicularDegree, maximumDegree] to [lastRunValue, 20]
-        var lastRunValue =  ((lastChopstick!.angle.abs()) * 40) / maximumDegree;
+        var lastRunValue =  ((lastChopstick!.angle.abs()) * 30) / maximumDegree;
         runValue =
             ((chopstick.angle.abs() - perpendicularDegree) / (60 - perpendicularDegree)) * (20 - lastRunValue) + lastRunValue;
     }
@@ -780,8 +777,10 @@ class PageCurlPainter extends CustomPainter {
       ..color = Colors.red
       ..strokeWidth = 1
       ..style = PaintingStyle.stroke;
-    final path = Path();
 
+
+    /// Turn page area
+    final path = Path();
     const conicT =  0.7;
     const conicWeight =  4.0;
     if(chopstick.angle != 0) {
@@ -794,51 +793,40 @@ class PageCurlPainter extends CustomPainter {
       }
       var lastPoint = TwoDFormula.getPointOnConicCurve(0.7, cornerPoint!, bezierControlPoint!, bezierEndPoint!, conicWeight);
 
-      //
-      // path.conicTo(bezierControlPoint!.dx, bezierControlPoint!.dy, bezierEndPoint!.dx, bezierEndPoint!.dy, 4);
-      // var conicPoint = TwoDFormula.calculateConicPoint(0.7,
-      //     TwoDFormula.convert2OxyCoordinates(cornerPoint!),
-      //     TwoDFormula.convert2OxyCoordinates(bezierControlPoint!),
-      //     TwoDFormula.convert2OxyCoordinates(bezierEndPoint!),
-      //     conic_weight);
-      // conicPoint = TwoDFormula.revert2DartCoordinates(conicPoint);
-      // // path1.close();
-
-      path.moveTo(lastPoint.dx, lastPoint.dy);
-      // path.moveTo(bezierEndPoint!.dx, bezierEndPoint!.dy);
+      /// draw the line
       path.lineTo(supportFoldPoint!.dx, supportFoldPoint!.dy);
 
-      // /// draw bottom or top bezier point
-      // var horizontalStartPoint = chopstick.angle > 0? chopstick.bottomLeft : chopstick.topLeft;
+
+
+
+
+      /// draw the Bezier curve
       var horizontalStartPoint = chopstick.angle > 0? chopstick.centerBottom : chopstick.centerTop;
-      // var horizontalStartPoint = supportFoldPoint;
       var horizontalEndPoint = cornerPoint;
-      // double t_c = 0.5; // Let's assume C is halfway along the curve for simplicity
-      /// todo this calculate t of the bezier curve by angle
-      double t_c = 0.5 - ((chopstick!.angle.abs() / maximumAngle ) * 0.25);
-      print("tc $t_c");
-      print("angle chopstick ${chopstick!.angle}");
-      Offset p1 = calculateControlPoint(horizontalStartPoint, horizontalEndPoint!,supportFoldPoint!, t_c);
-      path.moveTo(horizontalStartPoint!.dx, horizontalStartPoint!.dy);
-      path.quadraticBezierTo(p1!.dx, p1!.dy,
-          horizontalEndPoint.dx, horizontalEndPoint.dy);
-      // path3.close();
-      // Combine the first two paths
-      // final combinedPath1 = Path.combine(
-      //   PathOperation.union, // Operation type
-      //   path1,
-      //   path2,
-      // );
+      /// Calculate t of the bezier curve by angle [angle, maximumAgle] => [0.5, 0.25]
+      double t_c = 0.5 - ((chopstick.angle.abs() / maximumAngle ) * 0.25);
+      print("tcccc ${t_c}");
+      print("chopstick ${chopstick.angle}");
+      if(chopstick.angle > maximumAngle / 2) {
+        t_c = 0.5;
+      }
+      Offset horizontalControlPoint = calculateControlPoint(horizontalStartPoint, horizontalEndPoint!,supportFoldPoint!, t_c);
+
+      /// get t
+      // List<double> tValues = TwoDFormula.calculateTForPoint(supportFoldPoint!, horizontalStartPoint, horizontalControlPoint, horizontalEndPoint);
+      // print("t $tValues");
       //
-      // // Combine the result with the third path
-      // final combinedPath2 = Path.combine(
-      //   PathOperation.union, // Operation type
-      //   combinedPath1,
-      //   path3,
-      // );
+      for (double t =t_c; t <= 1; t += 0.01) {
+        final point = TwoDFormula.getPointOnQuadraticCurve(t, horizontalStartPoint, horizontalControlPoint, horizontalEndPoint);
+        path.lineTo(point.dx, point.dy);
+      }
+
+
+
+      // path.moveTo(horizontalStartPoint.dx, horizontalStartPoint.dy);
+      // path.quadraticBezierTo(horizontalControlPoint.dx, horizontalControlPoint.dy,
+      //     horizontalEndPoint.dx, horizontalEndPoint.dy);
       canvas.drawPath(path, paint);
-
-
 
     }
 

@@ -308,6 +308,56 @@ class TwoDFormula {
     return Offset(x, y);
   }
 
+  static Offset getPointOnQuadraticCurve(double t, Offset start, Offset control, Offset end) {
+    double x = (1 - t) * (1 - t) * start.dx +
+        2 * (1 - t) * t * control.dx +
+        t * t * end.dx;
+
+    double y = (1 - t) * (1 - t) * start.dy +
+        2 * (1 - t) * t * control.dy +
+        t * t * end.dy;
+
+    return Offset(x, y);
+  }
+
+// Solve the quadratic equation for t
+  static List<double> solveQuadratic(double a, double b, double c) {
+    double discriminant = b * b - 4 * a * c;
+
+    if (discriminant < 0) {
+      return []; // No real solutions
+    }
+
+    double sqrtDiscriminant = sqrt(discriminant);
+
+    double t1 = (-b + sqrtDiscriminant) / (2 * a);
+    double t2 = (-b - sqrtDiscriminant) / (2 * a);
+
+    // Return valid t values (0 <= t <= 1)
+    return [t1, t2].where((t) => t >= 0 && t <= 1).toList();
+  }
+
+// Calculate t for a given point on a quadratic Bézier curve
+  static List<double> calculateTForPoint(
+      Offset point, Offset start, Offset control, Offset end) {
+    // Coefficients for x
+    double ax = start.dx - 2 * control.dx + end.dx;
+    double bx = 2 * (control.dx - start.dx);
+    double cx = start.dx - point.dx;
+
+    // Coefficients for y
+    double ay = start.dy - 2 * control.dy + end.dy;
+    double by = 2 * (control.dy - start.dy);
+    double cy = start.dy - point.dy;
+
+    // Solve the quadratic equations for x and y
+    List<double> tX = solveQuadratic(ax, bx, cx);
+    List<double> tY = solveQuadratic(ay, by, cy);
+
+    // Find the common t values between x and y solutions
+    return tX.where((t) => tY.contains(t)).toList();
+  }
+
 }
 
 class Point {
