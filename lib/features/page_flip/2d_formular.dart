@@ -232,14 +232,14 @@ class TwoDFormula {
     return Offset(x, y);
   }
 
-  /// p0 start, p2 end, Q is the reflection point
-  static Offset calculateControlPoint(Offset p0, Offset p2, Offset q) {
-    double x1 = 2 * q.dx - 0.5 * p0.dx - 0.5 * p2.dx;
-    double y1 = 2 * q.dy - 0.5 * p0.dy - 0.5 * p2.dy;
-    // double x1 = q.dx - 0.5625 * p0.dx - 0.0625 * p2.dx;
-    // double y1 = q.dy - 0.5625 * p0.dy - 0.0625 * p2.dy;
-    return Offset(x1, y1);
-  }
+  // /// p0 start, p2 end, Q is the reflection point
+  // static Offset calculateControlPoint(Offset p0, Offset p2, Offset q) {
+  //   double x1 = 2 * q.dx - 0.5 * p0.dx - 0.5 * p2.dx;
+  //   double y1 = 2 * q.dy - 0.5 * p0.dy - 0.5 * p2.dy;
+  //   // double x1 = q.dx - 0.5625 * p0.dx - 0.0625 * p2.dx;
+  //   // double y1 = q.dy - 0.5625 * p0.dy - 0.0625 * p2.dy;
+  //   return Offset(x1, y1);
+  // }
 
 
   static Offset findPointRelativeToSegment(Offset a, Offset b, double ratio, double m) {
@@ -356,6 +356,12 @@ class TwoDFormula {
 
     // Find the common t values between x and y solutions
     return tX.where((t) => tY.contains(t)).toList();
+  }
+
+  static Offset calculateControlPoint(Offset a, Offset b, Offset c, double t_c) {
+    double x1 = (c.dx - (1 - t_c) * (1 - t_c) * a.dx - t_c * t_c * b.dx) / (2 * t_c * (1 - t_c));
+    double y1 = (c.dy - (1 - t_c) * (1 - t_c) * a.dy - t_c * t_c * b.dy) / (2 * t_c * (1 - t_c));
+    return Offset(x1, y1);
   }
 
 }
