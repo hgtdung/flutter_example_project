@@ -4,6 +4,7 @@ import 'package:flutter_example_project/features/page1_screen/page1_screen.dart'
 import 'package:flutter_example_project/features/page2_screen/page2_screen.dart';
 import 'package:flutter_example_project/features/page3_screen/page3_screen.dart';
 import 'package:flutter_example_project/features/page_flip/page_flip_ver2.dart';
+import 'package:flutter_example_project/features/page_flip/page_flip_ver3.dart';
 import 'package:flutter_example_project/kwidget/kbottom_navigation/k_tab_view.lib.dart';
 
 import '../page_flip/page_flip.dart';
@@ -26,7 +27,7 @@ class _MainScreenState extends State<MainScreen> {
 
   List<Widget> _buildScreens() {
     return [
-      const PageFlipWidgetVer2(),
+      const PageFlipWidgetVer3(),
       const Page2Screen(),
       const Page3Screen()
     ];

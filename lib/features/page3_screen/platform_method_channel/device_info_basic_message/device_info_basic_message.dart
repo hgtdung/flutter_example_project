@@ -15,7 +15,7 @@ class _DeviceInfoBasicMessageState extends State<DeviceInfoBasicMessage> {
   static const _StandardMessageCodecChannel = "StandardMessageCodec";
 
   static const BasicMessageChannel<String> stringPlatform =
-      BasicMessageChannel<String>(_StringCodecChannel, StringCodec());
+  BasicMessageChannel<String>(_StringCodecChannel, StringCodec());
 
   static const BasicMessageChannel<dynamic> jsonPlatform =
   BasicMessageChannel<dynamic>(_JSONMessageCodecChannel, JSONMessageCodec());
@@ -24,7 +24,7 @@ class _DeviceInfoBasicMessageState extends State<DeviceInfoBasicMessage> {
   BasicMessageChannel<dynamic>(_StandardMessageCodecChannel, StandardMessageCodec());
 
   static const BasicMessageChannel<dynamic> binaryPlatform =
-    BasicMessageChannel<dynamic>(_BinaryCodecChannel, BinaryCodec());
+  BasicMessageChannel<dynamic>(_BinaryCodecChannel, BinaryCodec());
 
   String _deviceInfoFromStr = "Unknown device info";
   String _deviceInfoFromJson = "Unknown device info";

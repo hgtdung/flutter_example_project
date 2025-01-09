@@ -364,6 +364,10 @@ class TwoDFormula {
     return Offset(x1, y1);
   }
 
+  static double mapValue(double value, double fromLow, double fromHigh, double toLow, double toHigh) {
+    return toLow + (value - fromLow) * (toHigh - toLow) / (fromHigh - fromLow);
+  }
+
 }
 
 class Point {
