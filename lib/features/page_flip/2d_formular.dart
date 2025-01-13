@@ -368,6 +368,19 @@ class TwoDFormula {
     return toLow + (value - fromLow) * (toHigh - toLow) / (fromHigh - fromLow);
   }
 
+  static bool isPointLeftOrRight(Offset a, Offset b, Offset p) {
+    // Calculate the cross product
+    double cross = (b.dx - a.dx) * (p.dy - a.dy) - (b.dy - a.dy) * (p.dx - a.dx);
+
+    if (cross > 0) {
+      return true; // Left of the line
+    } else if (cross < 0) {
+      return false; // Right of the line
+    } else {
+      return false;
+    }
+  }
+
 }
 
 class Point {

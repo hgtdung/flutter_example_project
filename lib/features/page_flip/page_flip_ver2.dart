@@ -60,6 +60,8 @@
 //
 //   double conicWeight = 0;
 //
+//   Offset? horizontalStartPoint;
+//
 //   @override
 //   void initState() {
 //     super.initState();
@@ -113,45 +115,47 @@
 //             child: Stack(
 //               clipBehavior: Clip.none,
 //               children: [
-//                 ClipShadowPath(
-//                     shadow: const BoxShadow(
-//                     color: Colors.black45,
-//                     offset: Offset(8, 8),
-//                     blurRadius: 7,
-//                     spreadRadius: 8),
-//                     clipper:
-//                     PageCurlClipper(
-//                         nullableChopstick: chopstick,
-//                         supportFoldPoint: supportFoldPoint,
-//                         cornerPoint: cornerPoint,
-//                         bezierStartPoint: bezierStart,
-//                         bezierEndPoint: bezierEnd,
-//                         bezierControlPoint: bezierControlPoint,
-//                         conicInflectionPoint: conicInflectionPoint,
-//                         maximumAngle: maximumDegree),
-//                     child: Container(
-//                       height: 600,
-//                       width: MediaQuery.of(context).size.width,
-//                       color: const Color(0xffF5DEB3),
-//                       child: Stack(
-//                         clipBehavior: Clip.none,
-//                         children: [
-//                           Text(
-//                               "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris ornare iaculis turpis non varius. Aenean non tortor dui. Nunc imperdiet ante vitae bibendum volutpat. Maecenas mollis bibendum dolor non blandit. Nulla pretium arcu eget urna volutpat, sit amet posuere ipsum congue. Cras facilisis augue vitae est hendrerit, at mollis diam tempor. Cras ligula magna, ultricies nec massa in, sollicitudin vulputate massa. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Cras tincidunt elit in dapibus lacinia. Suspendisse sed enim orci. Donec blandit pharetra efficitur. Donec nec suscipit est, at interdum augue."),
-//                           CustomPaint(
-//                             painter: PageCurlPainter(
-//                                 nullableChopstick: chopstick,
-//                                 supportFoldPoint: supportFoldPoint,
-//                                 cornerPoint: cornerPoint,
-//                                 bezierStartPoint: bezierStart,
-//                                 bezierEndPoint: bezierEnd,
-//                                 bezierControlPoint: bezierControlPoint,
-//                                 conicInflectionPoint: conicInflectionPoint,
-//                                 maximumAngle: maximumDegree),
-//                           ),
-//                         ],
+//                 // ClipShadowPath(
+//                 //     shadow: const BoxShadow(
+//                 //     color: Colors.black45,
+//                 //     offset: Offset(8, 8),
+//                 //     blurRadius: 7,
+//                 //     spreadRadius: 8),
+//                 //     clipper:
+//                 //     PageCurlClipper(
+//                 //         nullableChopstick: null,
+//                 //         supportFoldPoint: supportFoldPoint,
+//                 //         cornerPoint: cornerPoint,
+//                 //         bezierStartPoint: bezierStart,
+//                 //         bezierEndPoint: bezierEnd,
+//                 //         bezierControlPoint: bezierControlPoint,
+//                 //         conicInflectionPoint: conicInflectionPoint,
+//                 //         maximumAngle: maximumDegree),
+//                 Container(
+//                   height: 600,
+//                   width: MediaQuery.of(context).size.width,
+//                   color: const Color(0xffF5DEB3),
+//                   child: Stack(
+//                     clipBehavior: Clip.none,
+//                     children: [
+//                       Text(
+//                           "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris ornare iaculis turpis non varius. Aenean non tortor dui. Nunc imperdiet ante vitae bibendum volutpat. Maecenas mollis bibendum dolor non blandit. Nulla pretium arcu eget urna volutpat, sit amet posuere ipsum congue. Cras facilisis augue vitae est hendrerit, at mollis diam tempor. Cras ligula magna, ultricies nec massa in, sollicitudin vulputate massa. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Cras tincidunt elit in dapibus lacinia. Suspendisse sed enim orci. Donec blandit pharetra efficitur. Donec nec suscipit est, at interdum augue."),
+//                       CustomPaint(
+//                         painter: PageCurlPainter(
+//                             horizontalStartPoint: horizontalStartPoint,
+//                             nullableChopstick: chopstick,
+//                             supportFoldPoint: supportFoldPoint,
+//                             cornerPoint: cornerPoint,
+//                             bezierStartPoint: bezierStart,
+//                             bezierEndPoint: bezierEnd,
+//                             bezierControlPoint: bezierControlPoint,
+//                             conicInflectionPoint: conicInflectionPoint,
+//                             maximumAngle: maximumDegree),
 //                       ),
-//                     )),
+//                     ],
+//                   ),
+//                 ),
+//                 // ),
 //                 ...getPageAnchor(chopstick),
 //                 // Container(
 //                 //   color: Color(0xffF5DEB3),
@@ -218,7 +222,6 @@
 //                 // ),
 //               ],
 //             ),
-//
 //           ),
 //         ),
 //       ],
@@ -409,6 +412,7 @@
 //
 //     findBottomCornerPoints(
 //         localPosition, chopstickRange, noRotateChopstick, degree);
+//
 //     findTopCornerPoints(
 //         localPosition, chopstickRange, noRotateChopstick, degree);
 //
@@ -427,9 +431,22 @@
 //     // horizontalControlPoint = TwoDFormula.findPointRelativeToSegment(supportFoldPoint!, bottomCornerPoint, 1/5, 10);
 //
 //     findBezierPoint(degree);
+//     findHorizontalStartPoint(degree);
 //
 //     lastChopstick = chopstick;
-//     print("final degree $degree");
+//   }
+//
+//   void findHorizontalStartPoint(double degree) {
+//     if (degree == 0) {
+//       horizontalStartPoint = null;
+//     } {
+//       horizontalStartPoint =
+//       chopstick!.angle > 0 ? chopstick!.bottomRight : chopstick!.centerTop;
+//     }
+//
+//     if(horizontalStartPoint != null && horizontalStartPoint!.dx < topLeftLimitation.dx) {
+//       horizontalStartPoint = Offset(topLeftLimitation.dx, horizontalStartPoint!.dy);
+//     }
 //   }
 //
 //   /// duong thang tu corner to bottom, now to have to the fold point
@@ -494,32 +511,35 @@
 //         Offset(paper_size.width, -paper_size.height),
 //         Offset(chopstick!.bottomRight.dx + amountToMiddleBottom,
 //             -chopstick!.bottomRight.dy),
-//         Offset(
-//             chopstick!.topRight.dx + amountToMiddleBottom, -chopstick!.topRight.dy));
+//         Offset(chopstick!.topRight.dx + amountToMiddleBottom,
+//             -chopstick!.topRight.dy));
 //
-//
-//     var amountToMiddleTop = TwoDFormula.mapValue(chopstick!.centerTop.dx, noRotateChopstick.centerTop.dx,
-//         paper_size.width, amountToMiddleBottom, 0);
-//     if(amountToMiddleTop > 0) {
+//     var amountToMiddleTop = TwoDFormula.mapValue(
+//         chopstick!.centerTop.dx,
+//         noRotateChopstick.centerTop.dx,
+//         paper_size.width,
+//         amountToMiddleBottom,
+//         0);
+//     if (amountToMiddleTop > 0) {
 //       topCornerPoint = TwoDFormula.findSymmetricPoint(
 //           Offset(paper_size.width, 0),
 //           Offset(chopstick!.bottomRight.dx + amountToMiddleTop,
 //               -chopstick!.bottomRight.dy),
-//           Offset(chopstick!.topRight.dx + amountToMiddleTop, -chopstick!.topRight.dy));
-//       topCornerPoint = TwoDFormula.findIntersectionWithHorizontalLine(topCornerPoint, chopstick!.bottomRight!, 0)!;
+//           Offset(chopstick!.topRight.dx + amountToMiddleTop,
+//               -chopstick!.topRight.dy));
+//       topCornerPoint = TwoDFormula.findIntersectionWithHorizontalLine(
+//           topCornerPoint, chopstick!.bottomRight!, 0)!;
 //     } else {
 //       topCornerPoint = chopstick!.centerTop;
 //     }
 //
-//
 //     print("amount to middle top $amountToMiddleTop");
+//
 //     /// findMiddleMaximumDegree
-//
-//
 //
 //     // print("mapped value $mappedValue");
 //     /// old code
-//       if (degree > 0 ) {
+//     if (degree > 0) {
 //       /// Find top corner point
 //       // var noRotateBottomCornerPoint = Offset(
 //       //     noRotateChopstick.bottomLeft.dx, -noRotateChopstick.bottomLeft.dy);
@@ -533,8 +553,6 @@
 //       //     noRotateTopCornerPoint.dy + dyBottomCornerDiff);
 //       // topCornerPoint = TwoDFormula.findIntersectionWithHorizontalLine(
 //       //     bottomCornerPoint, topCornerPoint, 0)!;
-//
-//
 //
 //       /// Revert to dart coordinate
 //       topCornerPoint = Offset(topCornerPoint.dx, -topCornerPoint.dy);
@@ -596,6 +614,7 @@
 //     } else {
 //       /// map value from [perpendicularDegree, maximumDegree] to [lastRunValue, 20]
 //       var lastRunValue = ((lastChopstick!.angle.abs()) * 30) / maximumDegree;
+//       print("last run value $lastRunValue");
 //       runValue = ((chopstick.angle.abs() - perpendicularDegree) /
 //                   (60 - perpendicularDegree)) *
 //               (20 - lastRunValue) +
@@ -685,11 +704,11 @@
 //                 shape: BoxShape.circle, color: Colors.brown),
 //           )),
 //       Positioned(
-//           left: chopstick.bottomRight.dx - 5,
-//           top: chopstick.bottomRight.dy - 5,
+//           left: chopstick.bottomRight.dx - 2.5,
+//           top: chopstick.bottomRight.dy - 2.5,
 //           child: Container(
-//             height: 10,
-//             width: 10,
+//             height: 5,
+//             width: 5,
 //             decoration: const BoxDecoration(
 //                 shape: BoxShape.circle, color: Colors.brown),
 //           )),
@@ -754,17 +773,17 @@
 //               decoration: const BoxDecoration(
 //                   shape: BoxShape.circle, color: Colors.purple),
 //             )),
-//       // if (supportFoldPoint != null)
-//       //   Positioned(
-//       //       left: supportFoldPoint!.dx - 5,
-//       //       top: supportFoldPoint!.dy - 5,
-//       //       child: Container(
-//       //         height: 10,
-//       //         width: 10,
-//       //         child: Text("b"),
-//       //         decoration: const BoxDecoration(
-//       //             shape: BoxShape.circle, color: Colors.yellow),
-//       //       )),
+//       if (supportFoldPoint != null)
+//         Positioned(
+//             left: supportFoldPoint!.dx - 2.5,
+//             top: supportFoldPoint!.dy - 2.5,
+//             child: Container(
+//               height: 5,
+//               width: 5,
+//               child: Text("b"),
+//               decoration: const BoxDecoration(
+//                   shape: BoxShape.circle, color: Colors.blue),
+//             )),
 //       Positioned(
 //           left: topCornerPoint.dx - 5,
 //           top: topCornerPoint.dy - 5,
@@ -819,7 +838,8 @@
 //   }
 // }
 //
-// class PageCurlClipper extends CustomClipper<Path> {
+// class PageCurlClipper extends CustomClipper<Path>  {
+//   final Offset? horizontalStartPoint;
 //   final Offset? supportFoldPoint;
 //   final Offset? cornerPoint;
 //   final Offset? bezierStartPoint;
@@ -830,7 +850,9 @@
 //   final double maximumAngle;
 //
 //   PageCurlClipper(
-//       {this.nullableChopstick,
+//       {
+//         this.horizontalStartPoint,
+//         this.nullableChopstick,
 //       required this.maximumAngle,
 //       this.supportFoldPoint,
 //       this.cornerPoint,
@@ -923,6 +945,7 @@
 // }
 //
 // class PageCurlPainter extends CustomPainter {
+//   final Offset? horizontalStartPoint;
 //   final Offset? supportFoldPoint;
 //   final Offset? cornerPoint;
 //   final Offset? bezierStartPoint;
@@ -933,7 +956,9 @@
 //   final double maximumAngle;
 //
 //   PageCurlPainter(
-//       {this.nullableChopstick,
+//       {
+//       this.horizontalStartPoint,
+//       this.nullableChopstick,
 //       required this.maximumAngle,
 //       this.supportFoldPoint,
 //       this.cornerPoint,
@@ -943,8 +968,7 @@
 //       this.conicInflectionPoint});
 //   @override
 //   void paint(Canvas canvas, Size size) {
-//
-//     if(nullableChopstick == null) {
+//     if (nullableChopstick == null) {
 //       return;
 //     }
 //
@@ -952,21 +976,17 @@
 //     const conicT = 0.7;
 //     const conicWeight = 4.0;
 //
-//
-//
 //     drawShadow(chopstick, canvas, conicWeight, conicT);
 //
 //     // drawShadow(chopstick, canvas, conicWeight, conicT);
 //
 //     drawShadowSkeleton(chopstick, canvas, conicWeight, conicT);
 //
-//     drawTurnPagePart(chopstick, canvas, conicWeight, conicT);
-//
+//     // drawTurnPagePart(chopstick, canvas, conicWeight, conicT);
 //   }
 //
-//   void drawShadow(Chopstick chopstick, Canvas canvas, double conicWeight, double conicT) {
-//
-//
+//   void drawShadow(
+//       Chopstick chopstick, Canvas canvas, double conicWeight, double conicT) {
 //     /// all test
 //     var shadowPath = Path();
 //
@@ -993,7 +1013,7 @@
 //
 //       /// draw the Bezier curve
 //       var horizontalStartPoint =
-//       chopstick.angle > 0 ? chopstick.centerBottom : chopstick.centerTop;
+//           chopstick.angle > 0 ? chopstick.centerBottom : chopstick.centerTop;
 //       var horizontalEndPoint = cornerPoint;
 //
 //       /// Calculate t of the bezier curve by angle [angle, maximumAgle] => [0.5, 0.25]
@@ -1023,7 +1043,8 @@
 //     );
 //   }
 //
-//   void drawShadowSkeleton(Chopstick chopstick, Canvas canvas, double conicWeight, double conicT) {
+//   void drawShadowSkeleton(
+//       Chopstick chopstick, Canvas canvas, double conicWeight, double conicT) {
 //     var shadowPaint = Paint()
 //       ..color = Colors.purple
 //       ..strokeWidth = 1
@@ -1031,6 +1052,7 @@
 //
 //     /// all test
 //     final shadowPath = Path();
+//
 //     /// draw shadow
 //
 //     if (chopstick.angle == 0) {
@@ -1049,40 +1071,42 @@
 //     } else {
 //       /// draw the Bezier curve
 //
-//       var horizontalStartPoint =
-//       chopstick.angle > 0 ? chopstick.centerBottom : chopstick.centerTop;
+//       // var horizontalStartPoint =
+//       //     chopstick.angle > 0 ? chopstick.centerTop : chopstick.centerBottom;
+//
+//     print("zoday");
 //       var horizontalEndPoint = cornerPoint;
-//       shadowPath.moveTo(horizontalStartPoint.dx, horizontalStartPoint.dy);
+//       shadowPath.moveTo(horizontalStartPoint!.dx, horizontalStartPoint!.dy);
 //
 //       /// Calculate t of the bezier curve by angle [angle, maximumAgle] => [0.5, 0.25]
 //       double t_c = 0.5 - ((chopstick.angle.abs() / maximumAngle) * 0.25);
-//       if (chopstick.angle.abs() > maximumAngle / 2) {
-//         t_c = 0.5;
-//       }
+//
+//       // if (chopstick.angle.abs() > maximumAngle / 2) {
+//       //   t_c = 0.5;
+//       // }
+//
+//       print("tc ${t_c}");
 //       Offset horizontalControlPoint = calculateControlPoint(
-//           horizontalStartPoint, horizontalEndPoint!, supportFoldPoint!, t_c);
+//           horizontalStartPoint!, horizontalEndPoint!, supportFoldPoint!, t_c);
 //       shadowPath.quadraticBezierTo(horizontalControlPoint.dx,
-//           horizontalControlPoint.dy,cornerPoint!.dx, cornerPoint!.dy);
+//           horizontalControlPoint.dy, cornerPoint!.dx, cornerPoint!.dy);
 //
 //       shadowPath.conicTo(bezierControlPoint!.dx, bezierControlPoint!.dy,
 //           bezierEndPoint!.dx, bezierEndPoint!.dy, conicWeight);
 //
-//       final conicInflectionPoint = TwoDFormula.getPointOnConicCurve(
-//           conicT, cornerPoint!, bezierControlPoint!, bezierEndPoint!, conicWeight);
+//       final conicInflectionPoint = TwoDFormula.getPointOnConicCurve(conicT,
+//           cornerPoint!, bezierControlPoint!, bezierEndPoint!, conicWeight);
 //       shadowPath.moveTo(conicInflectionPoint.dx, conicInflectionPoint.dy);
 //       shadowPath.lineTo(supportFoldPoint!.dx, supportFoldPoint!.dy);
 //
 //       canvas.drawPath(
 //           shadowPath, // The path to cast the shadow from
-//           shadowPaint
-//       );
-//
+//           shadowPaint);
 //     }
 //   }
 //
-//
-//
-//   void drawTurnPagePart(Chopstick chopstick, Canvas canvas, double conicWeight, double conicT) {
+//   void drawTurnPagePart(
+//       Chopstick chopstick, Canvas canvas, double conicWeight, double conicT) {
 //     /// Turn page area
 //     var paint = Paint()
 //       ..color = const Color(0xffF6F6F6)
@@ -1115,7 +1139,7 @@
 //
 //       /// draw the Bezier curve
 //       var horizontalStartPoint =
-//       chopstick.angle > 0 ? chopstick.centerBottom : chopstick.centerTop;
+//           chopstick.angle > 0 ? chopstick.centerBottom : chopstick.centerTop;
 //       var horizontalEndPoint = cornerPoint;
 //
 //       /// Calculate t of the bezier curve by angle [angle, maximumAgle] => [0.5, 0.25]
@@ -1133,6 +1157,8 @@
 //       path.lineTo(cornerPoint!.dx, cornerPoint!.dy);
 //       canvas.drawPath(path, paint);
 //     }
+//
+//     /// start point
 //   }
 //
 //   void paintBoundary() {}
