@@ -880,10 +880,13 @@ class PageCurlClipper extends CustomClipper<Path> {
       }
       path.lineTo(supportFoldPoint!.dx, supportFoldPoint!.dy);
 
-      if(bezierEndPoint!.dx < chopstick.topRight.dx && chopstick.topRight.dx < size.width && chopstick.angle > 0) {
-        path.lineTo(chopstick.topRight.dx, chopstick.topRight.dy);
-      }  else if(bezierEndPoint!.dx < chopstick.bottomRight.dx && chopstick.bottomRight.dx < size.width && chopstick.angle < 0) {
-        path.lineTo(chopstick.bottomRight.dx, chopstick.bottomRight.dy);
+      if(bezierEndPoint!.dx <= chopstick.topRight.dx && chopstick.topRight.dx < size.width && chopstick.angle > 0) {
+        // path.lineTo(chopstick.topRight.dx, chopstick.topRight.dy);
+        var crossPoint = TwoDFormula.conicToCross(cornerPoint!, bezierControlPoint!, bezierEndPoint!,
+            conicWeight, chopstick.topRight, chopstick.bottomRight, null);
+        
+      }  else if(bezierEndPoint!.dx <= chopstick.bottomRight.dx && chopstick.bottomRight.dx < size.width && chopstick.angle < 0) {
+        // path.lineTo(chopstick.bottomRight.dx, chopstick.bottomRight.dy);
       } else {
         /// draw from fold point to conic inflection point
         var conicInflectionPoint = TwoDFormula.getPointOnConicCurve(conicT,
@@ -967,7 +970,7 @@ class PageCurlPainter extends CustomPainter {
 
     drawShadowSkeleton(chopstick, canvas, conicWeight, conicT, size);
 
-    drawTurnPagePart(chopstick, canvas, conicWeight, conicT, size);
+    // drawTurnPagePart(chopstick, canvas, conicWeight, conicT, size);
 
   }
 
@@ -985,14 +988,22 @@ class PageCurlPainter extends CustomPainter {
       shadowPath.lineTo(chopstick.topLeft.dx, chopstick.topLeft.dy);
     } else {
       shadowPath.moveTo(cornerPoint!.dx, cornerPoint!.dy);
-
-
-      if(bezierEndPoint!.dx < chopstick.topRight.dx && chopstick.topRight.dx < size.width && chopstick.angle > 0) {
-        shadowPath.conicTo(bezierControlPoint!.dx, bezierControlPoint!.dy, bezierEndPoint!.dx, bezierEndPoint!.dy, conicWeight);
-        shadowPath.lineTo(chopstick.topRight.dx, chopstick.topRight.dy);
-      } else if(bezierEndPoint!.dx < chopstick.bottomRight.dx && chopstick.bottomRight.dx < size.width && chopstick.angle < 0) {
-        shadowPath.conicTo(bezierControlPoint!.dx, bezierControlPoint!.dy, bezierEndPoint!.dx, bezierEndPoint!.dy, conicWeight);
-        shadowPath.lineTo(chopstick.bottomRight.dx, chopstick.bottomRight.dy);
+      if(bezierEndPoint!.dx <= chopstick.topRight.dx && chopstick.topRight.dx < size.width && chopstick.angle > 0) {
+        // shadowPath.conicTo(bezierControlPoint!.dx, bezierControlPoint!.dy, bezierEndPoint!.dx, bezierEndPoint!.dy, conicWeight);
+        // shadowPath.lineTo(chopstick.topRight.dx, chopstick.topRight.dy);
+        var crossPoint = conicToCross(cornerPoint!, bezierControlPoint!, bezierEndPoint!,
+            conicWeight, chopstick.topRight, chopstick.bottomRight, shadowPath);
+        if(crossPoint == null) {
+          shadowPath.lineTo(chopstick.topRight.dx, chopstick.topRight.dy);
+        }
+      } else if(bezierEndPoint!.dx <= chopstick.bottomRight.dx && chopstick.bottomRight.dx < size.width && chopstick.angle < 0) {
+        // shadowPath.conicTo(bezierControlPoint!.dx, bezierControlPoint!.dy, bezierEndPoint!.dx, bezierEndPoint!.dy, conicWeight);
+        // shadowPath.lineTo(chopstick.bottomRight.dx, chopstick.bottomRight.dy);
+        var crossPoint = conicToCross(cornerPoint!, bezierControlPoint!, bezierEndPoint!,
+            conicWeight, chopstick.topRight, chopstick.bottomRight, shadowPath);
+        if(crossPoint == null) {
+          shadowPath.lineTo(chopstick.bottomRight.dx, chopstick.bottomRight.dy);
+        }
       } else {
 
         for (double t = 0.0; t <= conicT; t += 0.01) {
@@ -1079,17 +1090,13 @@ class PageCurlPainter extends CustomPainter {
           horizontalControlPoint.dy,cornerPoint!.dx, cornerPoint!.dy);
 
 
-      // if(chopstick.range < 17 && chopstick.topRight.dx < size.width) {
-      //   // conicWeight = TwoDFormula.mapValue(value, fromLow, fromHigh, toLow, toHigh)
-      //   conicWeight = 0;
-      // }
 
 
       /// test
-      Paint paint = Paint()
-        ..color = Colors.blue
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 3;
+      // Paint paint = Paint()
+      //   ..color = Colors.blue
+      //   ..style = PaintingStyle.stroke
+      //   ..strokeWidth = 3;
 
       Paint linePaint = Paint()
         ..color = Colors.red
@@ -1100,18 +1107,15 @@ class PageCurlPainter extends CustomPainter {
       Offset start = cornerPoint!;  // Starting point
       Offset control = bezierControlPoint!; // Control point
       Offset end = bezierEndPoint!;    // Ending point
+      print("end point ${bezierEndPoint}");
+      print("chop stick top right ${chopstick.topRight}");
+      print("size $size");
 
-      // Define the line points
-      Offset lineStartTest = chopstick.topRight;
-      Offset lineEndTest = chopstick.bottomRight;
-
-      // Draw the conic Bézier curve using the parametric equation
-      Path path = Path();
-
-      // Set the initial point at start
-      path.moveTo(start.dx, start.dy);
 
       // Draw the curve by calculating points for different t values
+      bool wasCrossing = false;
+      Offset? crossOffset;
+      /// draw conic curve
       for (double t = 0; t <= 1; t += 0.01) {
         double denominator = (1 - t) * (1 - t) + 2 * conicWeight * (1 - t) * t + t * t;
         // Apply the conic Bézier formula: B(t) = (1 - t)^2 P0 + 2(1 - t)t P1 + t^2 P2
@@ -1119,55 +1123,99 @@ class PageCurlPainter extends CustomPainter {
         double y = ((1 - t) * (1 - t) * start.dy + 2 * (1 - t) * t * (conicWeight * control.dy) + t * t * end.dy) / denominator;
 
         // Add the calculated point to the path
-        path.lineTo(x, y);
-      }
-
-      // Check for intersections (approximation)
-      bool wasCrossing = false;
-      for (double t = 0; t <= 1; t += 0.01) {
-        double denominator = (1 - t) * (1 - t) + 2 * conicWeight * (1 - t) * t + t * t;
-        double x = ((1 - t) * (1 - t) * start.dx + 2 * (1 - t) * t * (conicWeight * control.dx) + t * t * end.dx) / denominator;
-        double y = ((1 - t) * (1 - t) * start.dy + 2 * (1 - t) * t * (conicWeight * control.dy) + t * t * end.dy) / denominator;
-
-        // Check if point (x, y) is near the line
-        if (isCrossingLine(x, y, lineStartTest, lineEndTest, wasCrossing)) {
+        shadowPath.lineTo(x, y);
+        if (crossOffset == null && isCrossingLine(x, y, chopstick.topRight, chopstick.bottomRight, wasCrossing)) {
+          crossOffset =  Offset(x, y);
+          Paint paint = Paint()
+            ..color = Colors.blue
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 3;
           paint.color = Colors.green; // Change color if crossing detected
           canvas.drawCircle(Offset(x, y), 5, paint); // Mark crossing point
         }
-
       }
+      shadowPath.lineTo(end.dx, end.dy);
 
-      canvas.drawLine(lineStartTest, lineEndTest, linePaint);
-      canvas.drawPath(path, paint);
-      // if(crossValue != null) {
-      //   canvas.drawCircle(crossValue, 5, paint);
-      // }
-      ///
-
-
-      shadowPath.conicTo(bezierControlPoint!.dx, bezierControlPoint!.dy,
-          bezierEndPoint!.dx, bezierEndPoint!.dy, conicWeight);
 
       if(bezierEndPoint!.dx < chopstick.topRight.dx && chopstick.topRight.dx < size.width && chopstick.angle > 0) {
+        if(crossOffset == null) {
           shadowPath.lineTo(chopstick.topRight.dx, chopstick.topRight.dy);
+        } else {
+          shadowPath.moveTo(crossOffset.dx, crossOffset.dy);
+        }
           shadowPath.lineTo(supportFoldPoint!.dx, supportFoldPoint!.dy);
       } else if(bezierEndPoint!.dx < chopstick.bottomRight.dx && chopstick.bottomRight.dx < size.width && chopstick.angle < 0) {
-        shadowPath.lineTo(chopstick.bottomRight.dx, chopstick.bottomRight.dy);
+        if(crossOffset == null) {
+          shadowPath.lineTo(chopstick.bottomRight.dx, chopstick.bottomRight.dy);
+        } else {
+          shadowPath.moveTo(crossOffset.dx, crossOffset.dy);
+        }
+
         shadowPath.lineTo(supportFoldPoint!.dx, supportFoldPoint!.dy);
-      } else {
-        var conicInflectionPoint = TwoDFormula.getPointOnConicCurve(
-            conicT, TwoDFormula.convert2OxyCoordinates(cornerPoint!),
-            TwoDFormula.convert2OxyCoordinates(bezierControlPoint!),
-            TwoDFormula.convert2OxyCoordinates(bezierEndPoint!), conicWeight);
-
-
-
-      conicInflectionPoint = TwoDFormula.revert2DartCoordinates(conicInflectionPoint);
-
-
-        shadowPath.moveTo(conicInflectionPoint.dx, conicInflectionPoint.dy);
+      } else if(bezierEndPoint!.dx == chopstick.topRight.dx && chopstick.topRight.dx < size.width && chopstick.angle > 0) {
+        if(crossOffset == null) {
+          shadowPath.lineTo(chopstick.topRight.dx, chopstick.topRight.dy);
+        } else {
+          shadowPath.moveTo(crossOffset.dx, crossOffset.dy);
+        }
+        shadowPath.lineTo(supportFoldPoint!.dx, supportFoldPoint!.dy);
+      } else if(bezierEndPoint!.dx == chopstick.bottomRight.dx && chopstick.bottomRight.dx < size.width && chopstick.angle < 0) {
+        if(crossOffset == null) {
+          shadowPath.lineTo(chopstick.bottomRight.dx, chopstick.bottomRight.dy);
+        } else {
+          shadowPath.moveTo(crossOffset.dx, crossOffset.dy);
+        }
         shadowPath.lineTo(supportFoldPoint!.dx, supportFoldPoint!.dy);
       }
+      else {
+          var conicInflectionPoint = TwoDFormula.getPointOnConicCurve(
+              conicT, TwoDFormula.convert2OxyCoordinates(cornerPoint!),
+              TwoDFormula.convert2OxyCoordinates(bezierControlPoint!),
+              TwoDFormula.convert2OxyCoordinates(bezierEndPoint!), conicWeight);
+
+
+
+
+
+        print("conic tt $conicT");
+        conicInflectionPoint = TwoDFormula.revert2DartCoordinates(conicInflectionPoint);
+          print("conic inflectionpoint $conicInflectionPoint");
+          print("chop stick top right ${chopstick.topRight}");
+          print("size ${size.width}");
+          canvas.drawCircle(conicInflectionPoint, 5, shadowPaint); // Mark
+        if(crossOffset != null) {
+          shadowPath.moveTo(crossOffset.dx, crossOffset.dy);
+        } else {
+          shadowPath.moveTo(conicInflectionPoint.dx, conicInflectionPoint.dy);
+        }
+
+          shadowPath.lineTo(supportFoldPoint!.dx, supportFoldPoint!.dy);
+      }
+
+      // else if(chopstick!.centerTop.dx  == size.width && chopstick.centerTop.dy > 0
+      // ||  chopstick!.centerBottom.dx  == size.width && chopstick.centerBottom.dy < size.height
+      // ){
+      //   var conicInflectionPoint = TwoDFormula.getPointOnConicCurve(
+      //       conicT, TwoDFormula.convert2OxyCoordinates(cornerPoint!),
+      //       TwoDFormula.convert2OxyCoordinates(bezierControlPoint!),
+      //       TwoDFormula.convert2OxyCoordinates(bezierEndPoint!), conicWeight);
+      //
+      //
+      //
+      //
+      //
+      // print("conic t $conicT");
+      // conicInflectionPoint = TwoDFormula.revert2DartCoordinates(conicInflectionPoint);
+      //   print("conic inflectionpoint $conicInflectionPoint");
+      //   print("chop stick top right ${chopstick.topRight}");
+      //   print("size ${size.width}");
+      //   canvas.drawCircle(conicInflectionPoint, 5, shadowPaint); // Mark
+      //
+      //   shadowPath.moveTo(conicInflectionPoint.dx, conicInflectionPoint.dy);
+      //   shadowPath.lineTo(supportFoldPoint!.dx, supportFoldPoint!.dy);
+      // } else {
+      //   shadowPath.lineTo(supportFoldPoint!.dx, supportFoldPoint!.dy);
+      // }
 
 
 
@@ -1199,6 +1247,28 @@ class PageCurlPainter extends CustomPainter {
     return wasCrossing != isCrossing;
   }
 
+  /// refactor this function
+  Offset? conicToCross(Offset start, Offset control, Offset end, double conicWeight, Offset lineStart, Offset lineEnd, Path? path) {
+    bool wasCrossing = false;
+    Offset? crossOffset;
+    /// draw conic curve
+    for (double t = 0; t <= 1; t += 0.01) {
+      double denominator = (1 - t) * (1 - t) + 2 * conicWeight * (1 - t) * t + t * t;
+      // Apply the conic Bézier formula: B(t) = (1 - t)^2 P0 + 2(1 - t)t P1 + t^2 P2
+      double x = ((1 - t) * (1 - t) * start.dx + 2 * (1 - t) * t * (conicWeight * control.dx) + t * t * end.dx) / denominator;
+      double y = ((1 - t) * (1 - t) * start.dy + 2 * (1 - t) * t * (conicWeight * control.dy) + t * t * end.dy) / denominator;
+
+      // Add the calculated point to the path
+      path?.lineTo(x, y);
+      if (crossOffset == null && isCrossingLine(x, y, lineStart, lineEnd, wasCrossing)) {
+        crossOffset =  Offset(x, y);
+        return crossOffset;
+      }
+    }
+    path?.lineTo(end.dx, end.dy);
+    return null;
+  }
+
 
   void drawTurnPagePart(Chopstick chopstick, Canvas canvas, double conicWeight, double conicT, Size size) {
     /// Turn page area
@@ -1208,10 +1278,6 @@ class PageCurlPainter extends CustomPainter {
       ..style = PaintingStyle.fill;
 
     final path = Path();
-
-    print("bezier start point $bezierStartPoint");
-    print("bezier end point $bezierEndPoint");
-    print("bezier control point $bezierControlPoint");
     // print("bezier start point $bezierStartPoint");
 
     if (chopstick.angle == 0) {
@@ -1226,13 +1292,23 @@ class PageCurlPainter extends CustomPainter {
 
       /// draw conic curve
       // Calculate and draw intermediate points for t = 0 to 0.5
-      if(bezierEndPoint!.dx < chopstick.topRight.dx && chopstick.topRight.dx < size.width && chopstick.angle > 0) {
-        path.conicTo(bezierControlPoint!.dx, bezierControlPoint!.dy, bezierEndPoint!.dx, bezierEndPoint!.dy, conicWeight);
-        path.lineTo(chopstick.topRight.dx, chopstick.topRight.dy);
-      }  else if (bezierEndPoint!.dx < chopstick.bottomRight.dx && chopstick.bottomRight.dx < size.width && chopstick.angle < 0) {
-        path.conicTo(bezierControlPoint!.dx, bezierControlPoint!.dy, bezierEndPoint!.dx, bezierEndPoint!.dy, conicWeight);
-        path.lineTo(chopstick.bottomRight.dx, chopstick.bottomRight.dy);
-      } else {
+      if(bezierEndPoint!.dx <= chopstick.topRight.dx && chopstick.topRight.dx < size.width && chopstick.angle > 0) {
+        // path.conicTo(bezierControlPoint!.dx, bezierControlPoint!.dy, bezierEndPoint!.dx, bezierEndPoint!.dy, conicWeight);
+        var crossPoint = conicToCross(cornerPoint!, bezierControlPoint!, bezierEndPoint!,
+            conicWeight, chopstick.topRight, chopstick.bottomRight, path);
+        if(crossPoint == null) {
+          path.lineTo(chopstick.topRight.dx, chopstick.topRight.dy);
+        }
+      }  else if (bezierEndPoint!.dx <= chopstick.bottomRight.dx && chopstick.bottomRight.dx < size.width && chopstick.angle < 0) {
+        // path.conicTo(bezierControlPoint!.dx, bezierControlPoint!.dy, bezierEndPoint!.dx, bezierEndPoint!.dy, conicWeight);
+        var crossPoint = conicToCross(cornerPoint!, bezierControlPoint!, bezierEndPoint!,
+            conicWeight, chopstick.topRight, chopstick.bottomRight, path);
+        if(crossPoint == null) {
+          path.lineTo(chopstick.bottomRight.dx, chopstick.bottomRight.dy);
+        }
+        // path.lineTo(chopstick.bottomRight.dx, chopstick.bottomRight.dy);
+      }
+      else {
         for (double t = 0.0; t <= conicT; t += 0.01) {
           final point = TwoDFormula.getPointOnConicCurve(
               t, cornerPoint!, bezierControlPoint!, bezierEndPoint!, conicWeight);

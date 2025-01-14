@@ -381,6 +381,39 @@ class TwoDFormula {
     }
   }
 
+  static Offset? conicToCross(Offset start, Offset control, Offset end, double conicWeight, Offset lineStart, Offset lineEnd, Path? path) {
+    bool wasCrossing = false;
+    Offset? crossOffset;
+    /// draw conic curve
+    for (double t = 0; t <= 1; t += 0.01) {
+      double denominator = (1 - t) * (1 - t) + 2 * conicWeight * (1 - t) * t + t * t;
+      // Apply the conic Bézier formula: B(t) = (1 - t)^2 P0 + 2(1 - t)t P1 + t^2 P2
+      double x = ((1 - t) * (1 - t) * start.dx + 2 * (1 - t) * t * (conicWeight * control.dx) + t * t * end.dx) / denominator;
+      double y = ((1 - t) * (1 - t) * start.dy + 2 * (1 - t) * t * (conicWeight * control.dy) + t * t * end.dy) / denominator;
+
+      // Add the calculated point to the path
+      path?.lineTo(x, y);
+      if (crossOffset == null && isCrossingLine(x, y, lineStart, lineEnd, wasCrossing)) {
+        crossOffset =  Offset(x, y);
+        return crossOffset;
+      }
+    }
+    path?.lineTo(end.dx, end.dy);
+    return null;
+  }
+
+  static bool isCrossingLine(double x, double y, Offset lineStart, Offset lineEnd, bool wasCrossing) {
+    // Cross product to determine the side of the line the point lies on
+    double crossProduct = (lineEnd.dx - lineStart.dx) * (y - lineStart.dy) -
+        (lineEnd.dy - lineStart.dy) * (x - lineStart.dx);
+
+    bool isCrossing = crossProduct < 0;
+
+    // Detect change in side (crossing)
+    return wasCrossing != isCrossing;
+  }
+
+
 }
 
 class Point {
