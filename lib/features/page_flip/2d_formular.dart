@@ -308,6 +308,8 @@ class TwoDFormula {
     return Offset(x, y);
   }
 
+
+
   static Offset getPointOnQuadraticCurve(double t, Offset start, Offset control, Offset end) {
     double x = (1 - t) * (1 - t) * start.dx +
         2 * (1 - t) * t * control.dx +
@@ -401,6 +403,19 @@ class TwoDFormula {
     path?.lineTo(end.dx, end.dy);
     return null;
   }
+
+  static double? findTAtConicCrossLine(Offset start, Offset control, Offset end, double conicWeight, Offset lineStart, Offset lineEnd) {
+    bool wasCrossing = false;
+    for (double t = 0; t <= 1; t += 0.01) {
+      Offset point = getPointOnConicCurve(t, start, control, end, conicWeight);
+      if (isCrossingLine(point.dx, point.dy, lineStart, lineEnd, wasCrossing)) {
+        return t;
+      }
+    }
+    return null;
+  }
+
+
 
   static bool isCrossingLine(double x, double y, Offset lineStart, Offset lineEnd, bool wasCrossing) {
     // Cross product to determine the side of the line the point lies on
