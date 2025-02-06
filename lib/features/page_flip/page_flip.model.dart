@@ -28,7 +28,8 @@ class Chopstick {
       this.centerBottom,
       this.range,
       this.angle,
-      this.pivot);
+      this.pivot
+      );
 
   rotateBy(double degree,
 

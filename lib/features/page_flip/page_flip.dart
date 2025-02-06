@@ -126,7 +126,7 @@ class _PageFlipWidgetState extends State<PageFlipWidget>
               color: Color(0xffF5DEB3),
               child: CustomPaint(
                 // painter: PageFlipPainter(),
-                painter: PageCurlPainter(
+                painter: PageCurlPainterOutdate(
                     startPoint: bezierStart, endPoint: bezierEnd),
                 child: Stack(
                   clipBehavior: Clip.none,
@@ -1211,11 +1211,11 @@ class VerticesDraw extends CustomPainter {
   }
 }
 
-class PageCurlPainter extends CustomPainter {
+class PageCurlPainterOutdate extends CustomPainter {
   final Offset? startPoint;
   final Offset? endPoint;
 
-  PageCurlPainter({this.startPoint, this.endPoint});
+  PageCurlPainterOutdate({this.startPoint, this.endPoint});
   @override
   void paint(Canvas canvas, Size size) {
     return;

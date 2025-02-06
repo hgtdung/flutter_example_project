@@ -34,8 +34,7 @@ class _PageFlipWidgetVer3State extends State<PageFlipWidgetVer3>
   /// manage front layer
   Chopstick? lastChopstick;
   Chopstick? chopstick;
-  double? fontLayerWidth;
-  Offset center = Offset(0, 0);
+  // double? fontLayerWidth;
 
   late Offset bottomCornerPoint;
   late Offset topCornerPoint;
@@ -52,7 +51,7 @@ class _PageFlipWidgetVer3State extends State<PageFlipWidgetVer3>
   Offset? bezierStart;
   Offset? bezierEnd;
   Offset? bezierControlPoint;
-  Offset? conicInflectionPoint;
+  // Offset? conicInflectionPoint;
 
   Offset? horizontalControlPoint;
   Offset? horizontalStartPoint;
@@ -81,9 +80,7 @@ class _PageFlipWidgetVer3State extends State<PageFlipWidgetVer3>
     bottomCornerPoint = Offset(paper_size.width, paper_size.height);
     topCornerPoint = Offset(paper_size.width, 0);
 
-    topRightLimitation = Offset(paper_size.width - 20, 0);
     bottomLeftLimitation = Offset(50, paper_size.height);
-    bottomRightLimitation = Offset(paper_size.width - 20, paper_size.height);
     topLeftLimitation = Offset(50, 0);
 
     super.didChangeDependencies();
@@ -124,7 +121,7 @@ class _PageFlipWidgetVer3State extends State<PageFlipWidgetVer3>
                             blurRadius: 7,
                             spreadRadius: 8),
                         clipper:
-                        PageCurlClipper(
+                        PageCurlClipper_save(
                             conicT: conicT,
                             conicWeight: conicWeight,
                             nullableChopstick: chopstick,
@@ -133,7 +130,7 @@ class _PageFlipWidgetVer3State extends State<PageFlipWidgetVer3>
                             bezierStartPoint: bezierStart,
                             bezierEndPoint: bezierEnd,
                             bezierControlPoint: bezierControlPoint,
-                            conicInflectionPoint: conicInflectionPoint,
+                            // conicInflectionPoint: conicInflectionPoint,
                             maximumAngle: maximumDegree,
                             horizontalStartPoint: horizontalStartPoint
                             ),
@@ -148,14 +145,14 @@ class _PageFlipWidgetVer3State extends State<PageFlipWidgetVer3>
                               Text(
                                   "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris ornare iaculis turpis non varius. Aenean non tortor dui. Nunc imperdiet ante vitae bibendum volutpat. Maecenas mollis bibendum dolor non blandit. Nulla pretium arcu eget urna volutpat, sit amet posuere ipsum congue. Cras facilisis augue vitae est hendrerit, at mollis diam tempor. Cras ligula magna, ultricies nec massa in, sollicitudin vulputate massa. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Cras tincidunt elit in dapibus lacinia. Suspendisse sed enim orci. Donec blandit pharetra efficitur. Donec nec suscipit est, at interdum augue."),
                               CustomPaint(
-                                painter: PageCurlPainter(
+                                painter: PageCurlPainter_save(
                                   horizontalStartPoint: horizontalStartPoint,
                                     conicT: conicT,
                                     conicWeight: conicWeight,
                                     nullableChopstick: chopstick,
                                     supportFoldPoint: supportFoldPoint,
                                     cornerPoint: cornerPoint,
-                                    bezierStartPoint: bezierStart,
+                                    // bezierStartPoint: bezierStart,
                                     bezierEndPoint: bezierEnd,
                                     bezierControlPoint: bezierControlPoint,
                                     // conicInflectionPoint: conicInflectionPoint,
@@ -167,7 +164,7 @@ class _PageFlipWidgetVer3State extends State<PageFlipWidgetVer3>
                           ),
                         ),
                     ),
-                    // ...getPageAnchor(chopstick),
+                    ...getPageAnchor(chopstick),
                   ],
                 ),
 
@@ -218,16 +215,14 @@ class _PageFlipWidgetVer3State extends State<PageFlipWidgetVer3>
     Offset centerBottom =
     Offset(topLeft.dx + chopstickRange / 2, paper_size.height);
 
-    /// just for show ui
-    this.center = center;
 
     return Chopstick(paper_size, topLeft, topRight, bottomLeft, bottomRight,
         center, centerTop, centerBottom, chopstickRange, 0, null);
   }
 
-  void calculateFontLayerWidth() {
-    fontLayerWidth = screen_size.width - chopstick!.range;
-  }
+  // void calculateFontLayerWidth() {
+  //   fontLayerWidth = screen_size.width - chopstick!.range;
+  // }
 
   void getClockWiseVer2(double degree) {
     var newPivotChopstick = chopstick!.copyWith()
@@ -260,7 +255,7 @@ class _PageFlipWidgetVer3State extends State<PageFlipWidgetVer3>
     }
     var chopstickRange = (paper_size.width - localPosition.dx) / pi;
     chopstick!.updateRange(localPosition, chopstickRange);
-    fontLayerWidth = localPosition.dx + chopstickRange;
+    // fontLayerWidth = localPosition.dx + chopstickRange;
   }
 
   void onPanUpdateVer2(Offset localPosition, DragUpdateDetails details) {
@@ -309,23 +304,35 @@ class _PageFlipWidgetVer3State extends State<PageFlipWidgetVer3>
             degree > -maximumDegree &&
             degree < 0)) {
       overflowDegree ??= degree;
+      newRotationPoint =
+      degree > 0 ? bottomLeftLimitation : topLeftLimitation;
 
-      /// right, up, down
       if (details.delta.dx > 0 ||
           details.delta.dy < 0 ||
           details.delta.dy > 0) {
-        if (degree.abs() > overflowDegree!.abs()) {
-          newRotationPoint =
-          degree > 0 ? bottomLeftLimitation : topLeftLimitation;
-        } else {
+        if (degree.abs() <
+            overflowDegree!.abs()) {
           newRotationPoint = null;
         }
-
-        /// left
-      } else if (details.delta.dx < 0) {
-        newRotationPoint =
-        degree > 0 ? bottomLeftLimitation : topLeftLimitation;
       }
+      /// right, up, down
+      // if (details.delta.dx > 0 ||
+      //     details.delta.dy < 0 ||
+      //     details.delta.dy > 0) {
+      //   if (degree.abs() > overflowDegree!.abs()) {
+      //     newRotationPoint =
+      //     degree > 0 ? bottomLeftLimitation : topLeftLimitation;
+      //   } else {
+      //     newRotationPoint = null;
+      //     print("degree $degree");
+      //     print("overflow deegree $overflowDegree");
+      //   }
+      //
+      //   /// left
+      // } else if (details.delta.dx < 0) {
+      //   newRotationPoint =
+      //   degree > 0 ? bottomLeftLimitation : topLeftLimitation;
+      // }
 
       /// reset overflow
     } else if (((chopstick!.bottomRight.dx).round() > bottomLeftLimitation.dx &&
@@ -342,7 +349,7 @@ class _PageFlipWidgetVer3State extends State<PageFlipWidgetVer3>
     chopstick!.updateRange(localPosition, chopstickRange);
     var noRotateChopstick = chopstick!.copyWith();
 
-    fontLayerWidth = localPosition.dx + chopstickRange;
+    // fontLayerWidth = localPosition.dx + chopstickRange;
 
     /// Reach [bottomLeftLimitation], move to that offset and rotate around that point
     if (newRotationPoint != null) {
@@ -374,10 +381,11 @@ class _PageFlipWidgetVer3State extends State<PageFlipWidgetVer3>
     }
     supportFoldPoint = getSupportFoldPoint(
         chopstick!, degree, maximumDegree, perpendicularDegree);
+    findHorizontalStartPoint(degree);
 
     findBezierPoint(degree);
     calculateConicWeight(degree);
-    findHorizontalStartPoint(degree);
+
 
     lastChopstick = chopstick;
 
@@ -421,6 +429,7 @@ class _PageFlipWidgetVer3State extends State<PageFlipWidgetVer3>
     ){
       conicTStartUpDegree = null;
     }
+
     if(conicTStartDownPosition != null && conicTStartUpDegree == null) {
       conicT = TwoDFormula.mapValue(degree > 0 ? chopstick!.centerTop.dx : chopstick!.centerBottom.dx,
           conicTStartDownPosition!, paper_size.width, 1, 0.6);
@@ -487,16 +496,16 @@ class _PageFlipWidgetVer3State extends State<PageFlipWidgetVer3>
     bezierControlPoint = TwoDFormula.findPointOnPerpendicularBisector(
         bezierStart!, bezierEnd!, 30, angle > 0 ? false : true);
 
-
-    conicInflectionPoint = TwoDFormula.findConicInflectionPoint(
-        bezierStart!, bezierControlPoint!, bezierEnd!, conic_weight);
+    //
+    // conicInflectionPoint = TwoDFormula.findConicInflectionPoint(
+    //     bezierStart!, bezierControlPoint!, bezierEnd!, conic_weight);
 
     bezierStart = TwoDFormula.revert2DartCoordinates(bezierStart!);
     bezierEnd = TwoDFormula.revert2DartCoordinates(bezierEnd!);
     bezierControlPoint =
         TwoDFormula.revert2DartCoordinates(bezierControlPoint!);
-    conicInflectionPoint =
-        TwoDFormula.revert2DartCoordinates(conicInflectionPoint!);
+    // conicInflectionPoint =
+    //     TwoDFormula.revert2DartCoordinates(conicInflectionPoint!);
   }
 
   void findBottomCornerPoints(Offset localPosition, double chopstickRange,
@@ -749,61 +758,11 @@ class _PageFlipWidgetVer3State extends State<PageFlipWidgetVer3>
               decoration: const BoxDecoration(
                   shape: BoxShape.circle, color: Colors.blue),
             )),
-      // Positioned(
-      //     left: topCornerPoint.dx - 5,
-      //     top: topCornerPoint.dy - 5,
-      //     child: Container(
-      //       height: 10,
-      //       width: 10,
-      //       child: Text("t"),
-      //       decoration: const BoxDecoration(
-      //           shape: BoxShape.circle, color: Colors.purple),
-      //     )),
-
-      // if(conicInflectionPoint != null)
-      //   Positioned(
-      //       left: conicInflectionPoint!.dx - 5,
-      //       top: conicInflectionPoint!.dy - 5,
-      //       child: Container(
-      //         height: 10,
-      //         width: 10,
-      //         child: Text("t"),
-      //         decoration: const BoxDecoration(
-      //             shape: BoxShape.circle, color: Colors.purple),
-      //       )),
-
-      // Positioned(
-      //     left: chopstick.centerTop.dx - 5 ?? 0,
-      //     top: chopstick.centerTop.dy - 5 ?? 0,
-      //     child: Container(
-      //       height: 10,
-      //       width: 10,
-      //       decoration:
-      //           const BoxDecoration(shape: BoxShape.circle, color: Colors.green),
-      //     )),
-      // Positioned(
-      //     left: chopstick.centerBottom.dx - 5 ?? 0,
-      //     top: chopstick.centerBottom.dy - 5 ?? 0,
-      //     child: Container(
-      //       height: 10,
-      //       width: 10,
-      //       decoration:
-      //           const BoxDecoration(shape: BoxShape.circle, color: Colors.pink),
-      //     )),
-      // Positioned(
-      //     left: chopstick.centerBottom.dx  - 5?? 0,
-      //     top: chopstick.centerBottom.dy - 5 ?? 0,
-      //     child: Container(
-      //       height: 10,
-      //       width: 10,
-      //       decoration: const BoxDecoration(
-      //           shape: BoxShape.circle, color: Colors.brown),
-      //     )),
     ];
   }
 }
 
-class PageCurlClipper extends CustomClipper<Path> {
+class PageCurlClipper_save extends CustomClipper<Path> {
   final double maximumAngle;
   final double conicWeight;
   final double conicT;
@@ -812,12 +771,12 @@ class PageCurlClipper extends CustomClipper<Path> {
   final Offset? bezierStartPoint;
   final Offset? bezierEndPoint;
   final Offset? bezierControlPoint;
-  final Offset? conicInflectionPoint;
+  // final Offset? conicInflectionPoint;
   final Chopstick? nullableChopstick;
   final Offset? horizontalStartPoint;
 
 
-  PageCurlClipper(
+  PageCurlClipper_save(
       {
         required this.maximumAngle,
         required this.conicWeight,
@@ -828,7 +787,7 @@ class PageCurlClipper extends CustomClipper<Path> {
         this.bezierStartPoint,
         this.bezierEndPoint,
         this.bezierControlPoint,
-        this.conicInflectionPoint,
+        // this.conicInflectionPoint,
         this.horizontalStartPoint
       });
   @override
@@ -972,14 +931,12 @@ class PageCurlClipper extends CustomClipper<Path> {
   bool shouldReclip(covariant CustomClipper<Path> oldClipper) {
     return true;
   }
-
-
 }
 
-class PageCurlPainter extends CustomPainter {
+class PageCurlPainter_save extends CustomPainter {
   final Offset? supportFoldPoint;
   final Offset? cornerPoint;
-  final Offset? bezierStartPoint;
+  // final Offset? bezierStartPoint;
   final Offset? bezierEndPoint;
   final Offset? bezierControlPoint;
   // final Offset? conicInflectionPoint;
@@ -990,7 +947,7 @@ class PageCurlPainter extends CustomPainter {
   final Offset? horizontalStartPoint;
 
 
-  PageCurlPainter(
+  PageCurlPainter_save(
       {
         this.horizontalStartPoint,
         this.nullableChopstick,
@@ -999,7 +956,7 @@ class PageCurlPainter extends CustomPainter {
         required this.conicT,
         this.supportFoldPoint,
         this.cornerPoint,
-        this.bezierStartPoint,
+        // this.bezierStartPoint,
         this.bezierEndPoint,
         this.bezierControlPoint,
         // this.conicInflectionPoint,
@@ -1457,7 +1414,6 @@ class PageCurlPainter extends CustomPainter {
       }
       else {
 
-        print("t here $conicT");
         Offset? crossOffset;
         bool wasCrossing = false;
         for (double t = 0.0; t <= conicT; t += 0.01) {
