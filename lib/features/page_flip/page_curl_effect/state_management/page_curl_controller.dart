@@ -81,16 +81,30 @@ class PageCurlController extends ChangeNotifier {
     pageCurlState = SketchState();
   }
 
-  void onCompleteTurnPage() {
-    reset();
-  }
-
   void onPanUpdate(DragUpdateDetails dragUpdateDetails) {
+    /// prevent backward if index == 0
+    /// prevent forward if index ==  [numberOfPage]
+    startPoint = startPoint ??
+        FPoint(dragUpdateDetails.localPosition.dx,
+            dragUpdateDetails.localPosition.dy);
+    if (startPoint != null &&
+            startPoint!.x < PCConstants.TURN_PAGE_BARRIER &&
+            pageCurlIndex == 0 ||
+        (dragUpdateDetails.delta.dx >= 0 && pageCurlIndex == 0) ||
+        (dragUpdateDetails.delta.dx <= 0 &&
+            pageCurlIndex == (numberOfPage - 1)) ||
+        startPoint != null &&
+            startPoint!.x > PCConstants.TURN_PAGE_BARRIER &&
+            pageCurlIndex == (numberOfPage - 1)) {
+      startPoint = null;
+      return;
+    }
+
     cylinder ??= Cylinder.from(dragUpdateDetails.localPosition, 10, paperSize);
 
     touchPoint = FPoint(
         dragUpdateDetails.localPosition.dx, dragUpdateDetails.localPosition.dy);
-    startPoint = startPoint ?? touchPoint;
+
     newCylinderAngle = calculateAngle(startPoint!, touchPoint!);
     publishingEvents(cylinder!, newCylinderAngle, dragUpdateDetails);
     onEvents(touchPoint!, cylinder!, newCylinderAngle);
@@ -98,6 +112,7 @@ class PageCurlController extends ChangeNotifier {
     lastCylinder = cylinder;
   }
 
+  /// ===== Switch effect between pages =====
   void onAutoPanUpdate(Offset touchPointOffset) {
     touchPoint = FPoint(touchPointOffset.dx, touchPointOffset.dy);
     startPoint = startPoint ?? touchPoint;
@@ -107,6 +122,50 @@ class PageCurlController extends ChangeNotifier {
 
     lastCylinder = cylinder;
   }
+
+  void onCompleteTurnPage() {
+    reset();
+  }
+
+  int? getPreviousPageIndex() {
+    if ((numberOfPage - pageCurlIndex) == numberOfPage) {
+      return null;
+    } else {
+      return pageCurlIndex - 1;
+    }
+  }
+
+  int? getNextPageIndex() {
+    if ((numberOfPage - pageCurlIndex) == 1) {
+      return null;
+    } else {
+      return pageCurlIndex + 1;
+    }
+  }
+
+  void onForwardComplete() {
+    if (pageCurlIndex < (numberOfPage - 1)) {
+      pageCurlIndex++;
+      notifyListeners();
+    }
+  }
+
+  void onBackwardComplete() {
+    if (pageCurlIndex > 0) {
+      pageCurlIndex--;
+      notifyListeners();
+    }
+  }
+
+  bool isLastPage() {
+    return pageCurlIndex == (numberOfPage - 1);
+  }
+
+  bool isFirstPage() {
+    return pageCurlIndex == 0;
+  }
+
+  /// ================================================
 
   void publishingEvents(
       Cylinder cylinder, double newAngle, DragUpdateDetails dragDetail) {
@@ -537,9 +596,5 @@ class PageCurlController extends ChangeNotifier {
       degree = PCConstants.MAXIMUM_ANGLE * kDegree;
     }
     return degree;
-  }
-
-  void turnPageAnimation() {
-    /// touch point move to (0, y);
   }
 }
