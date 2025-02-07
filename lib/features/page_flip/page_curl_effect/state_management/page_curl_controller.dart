@@ -114,6 +114,7 @@ class PageCurlController extends ChangeNotifier {
 
   /// ===== Switch effect between pages =====
   void onAutoPanUpdate(Offset touchPointOffset) {
+    cylinder ??= Cylinder.from(touchPointOffset, 10, paperSize);
     touchPoint = FPoint(touchPointOffset.dx, touchPointOffset.dy);
     startPoint = startPoint ?? touchPoint;
     newCylinderAngle = calculateAngle(startPoint!, touchPoint!);
@@ -146,14 +147,14 @@ class PageCurlController extends ChangeNotifier {
   void onForwardComplete() {
     if (pageCurlIndex < (numberOfPage - 1)) {
       pageCurlIndex++;
-      notifyListeners();
+      // notifyListeners();
     }
   }
 
   void onBackwardComplete() {
     if (pageCurlIndex > 0) {
       pageCurlIndex--;
-      notifyListeners();
+      // notifyListeners();
     }
   }
 

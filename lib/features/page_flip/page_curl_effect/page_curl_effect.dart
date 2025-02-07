@@ -11,13 +11,15 @@ class PageCurlEffect extends StatefulWidget {
   const PageCurlEffect(
       {super.key,
       required this.pageCurlController,
-      required this.pages,
+      this.pages,
+      this.pageBuilder,
       this.onForwardComplete,
       this.onBackwardComplete});
 
   final PageCurlController pageCurlController;
 
-  final List<Widget> pages;
+  final List<Widget>? pages;
+  final Widget Function(BuildContext, int)? pageBuilder;
 
   final VoidCallback? onForwardComplete;
   final VoidCallback? onBackwardComplete;
@@ -33,6 +35,12 @@ class _PageCurlEffectState extends State<PageCurlEffect>
 
   @override
   void initState() {
+    assert((widget.pages != null && widget.pageBuilder == null||
+        widget.pages == null && widget.pageBuilder != null),
+        "[Only configure one of [pages] or [pageBuilder]");
+
+
+
     _animationController = AnimationController(
         duration: const Duration(milliseconds: 250), vsync: this);
     super.initState();
@@ -42,7 +50,6 @@ class _PageCurlEffectState extends State<PageCurlEffect>
   void didChangeDependencies() {
     super.didChangeDependencies();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -130,11 +137,23 @@ class _PageCurlEffectState extends State<PageCurlEffect>
               return Stack(
                 clipBehavior: Clip.none,
                 children: [
-                  if (nextPageIndex != null) widget.pages[nextPageIndex],
-                  if (pageCurlCtlr.startPoint != null &&
+                  /// Using page list
+                  if (widget.pages != null && nextPageIndex != null)
+                    widget.pages![nextPageIndex],
+                  if (widget.pages != null &&
+                      pageCurlCtlr.startPoint != null &&
                       pageCurlCtlr.startPoint!.x <
                           PCConstants.TURN_PAGE_BARRIER)
-                    widget.pages[currentPageIndex],
+                    widget.pages![currentPageIndex],
+
+                  /// Using page builder
+                  if (widget.pageBuilder != null && nextPageIndex != null)
+                    widget.pageBuilder!(context, nextPageIndex),
+                  if (widget.pageBuilder != null &&
+                      pageCurlCtlr.startPoint != null &&
+                      pageCurlCtlr.startPoint!.x <
+                          PCConstants.TURN_PAGE_BARRIER)
+                    widget.pageBuilder!(context, currentPageIndex),
                   AnimatedBuilder(
                       animation: _animationController,
                       builder: (context, child) {
@@ -156,12 +175,29 @@ class _PageCurlEffectState extends State<PageCurlEffect>
                             child: Stack(
                               clipBehavior: Clip.none,
                               children: [
-                                widget.pages[currentPageIndex],
-                                if (pageCurlCtlr.startPoint != null &&
+                                /// Using pages
+                                if (widget.pages != null)
+                                  widget.pages![currentPageIndex],
+                                if (widget.pages != null &&
+                                    pageCurlCtlr.startPoint != null &&
                                     pageCurlCtlr.startPoint!.x <
                                         PCConstants.TURN_PAGE_BARRIER &&
                                     previousPageIndex != null)
-                                  widget.pages[previousPageIndex],
+                                  if (widget.pages != null)
+                                    widget.pages![previousPageIndex],
+
+                                /// Using page builder
+                                if (widget.pageBuilder != null)
+                                  widget.pageBuilder!(
+                                      context, currentPageIndex),
+                                if (widget.pageBuilder != null &&
+                                    pageCurlCtlr.startPoint != null &&
+                                    pageCurlCtlr.startPoint!.x <
+                                        PCConstants.TURN_PAGE_BARRIER &&
+                                    previousPageIndex != null)
+                                  if (widget.pageBuilder != null)
+                                    widget.pageBuilder!(
+                                        context, previousPageIndex),
                                 CustomPaint(
                                   painter: PageCurlPainter(
                                       nullableCylinder: pageCurlCtlr.cylinder,
