@@ -158,7 +158,68 @@ class _PageCurlEffectExampleState extends State<PageCurlEffectExample> {
             color: index == 1 ? const Color(0xff39A678) : const Color(0xffB9B9B9),
             width: paperSize.width,
             height: paperSize.height,
-            child: Center(child: Text("This is page $index")),
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  Text("This is page $index"),
+                  Text(
+                      "Age previous Lorem ipsum dolor sit amet, consectetur adipiscing elit. "
+                          "Mauris ornare iaculis turpis non varius. "
+                          "Aenean non tortor dui. Nunc imperdiet ante vitae "
+                          "bibendum volutpat. Maecenas mollis bibendum dolor non "
+                          "blandit. Nulla pretium arcu eget urna volutpat, "
+                          "sit amet posuere ipsum congue. Cras facilisis "
+                          "augue vitae est hendrerit, at mollis diam tempor. "
+                          "Cras ligula magna, ultricies nec massa in, "
+                          "sollicitudin vulputate massa. Vestibulum ante ipsum "
+                          "primis in faucibus orci luctus et ultrices posuere "
+                          "cubilia curae; Cras tincidunt elit in dapibus lacinia. "
+                          "Suspendisse sed enim orci. Donec blandit pharetra efficitur. "
+                          "Donec nec suscipit est, at interdum augue."
+                          "Age previous Lorem ipsum dolor sit amet, consectetur adipiscing elit. "
+                          "Mauris ornare iaculis turpis non varius. "
+                          "Aenean non tortor dui. Nunc imperdiet ante vitae "
+                          "bibendum volutpat. Maecenas mollis bibendum dolor non "
+                          "blandit. Nulla pretium arcu eget urna volutpat, "
+                          "sit amet posuere ipsum congue. Cras facilisis "
+                          "augue vitae est hendrerit, at mollis diam tempor. "
+                          "Cras ligula magna, ultricies nec massa in, "
+                          "sollicitudin vulputate massa. Vestibulum ante ipsum "
+                          "primis in faucibus orci luctus et ultrices posuere "
+                          "cubilia curae; Cras tincidunt elit in dapibus lacinia. "
+                          "Suspendisse sed enim orci. Donec blandit pharetra efficitur. "
+                          "Donec nec suscipit est, at interdum augue."
+                          "Age previous Lorem ipsum dolor sit amet, consectetur adipiscing elit. "
+                          "Mauris ornare iaculis turpis non varius. "
+                          "Aenean non tortor dui. Nunc imperdiet ante vitae "
+                          "bibendum volutpat. Maecenas mollis bibendum dolor non "
+                          "blandit. Nulla pretium arcu eget urna volutpat, "
+                          "sit amet posuere ipsum congue. Cras facilisis "
+                          "augue vitae est hendrerit, at mollis diam tempor. "
+                          "Cras ligula magna, ultricies nec massa in, "
+                          "sollicitudin vulputate massa. Vestibulum ante ipsum "
+                          "primis in faucibus orci luctus et ultrices posuere "
+                          "cubilia curae; Cras tincidunt elit in dapibus lacinia. "
+                          "Suspendisse sed enim orci. Donec blandit pharetra efficitur. "
+                          "Donec nec suscipit est, at interdum augue."
+                          "Age previous Lorem ipsum dolor sit amet, consectetur adipiscing elit. "
+                          "Mauris ornare iaculis turpis non varius. "
+                          "Aenean non tortor dui. Nunc imperdiet ante vitae "
+                          "bibendum volutpat. Maecenas mollis bibendum dolor non "
+                          "blandit. Nulla pretium arcu eget urna volutpat, "
+                          "sit amet posuere ipsum congue. Cras facilisis "
+                          "augue vitae est hendrerit, at mollis diam tempor. "
+                          "Cras ligula magna, ultricies nec massa in, "
+                          "sollicitudin vulputate massa. Vestibulum ante ipsum "
+                          "primis in faucibus orci luctus et ultrices posuere "
+                          "cubilia curae; Cras tincidunt elit in dapibus lacinia. "
+                          "Suspendisse sed enim orci. Donec blandit pharetra efficitur. "
+                          "Donec nec suscipit est, at interdum augue."
+
+                  )
+                ],
+              ),
+            ),
           );
         }
       ),

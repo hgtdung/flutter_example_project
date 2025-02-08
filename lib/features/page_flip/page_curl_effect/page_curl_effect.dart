@@ -35,11 +35,10 @@ class _PageCurlEffectState extends State<PageCurlEffect>
 
   @override
   void initState() {
-    assert((widget.pages != null && widget.pageBuilder == null||
-        widget.pages == null && widget.pageBuilder != null),
-        "[Only configure one of [pages] or [pageBuilder]");
-
-
+    assert(
+        (widget.pages != null && widget.pageBuilder == null ||
+            widget.pages == null && widget.pageBuilder != null),
+        "[Only set one of [pages] or [pageBuilder]");
 
     _animationController = AnimationController(
         duration: const Duration(milliseconds: 250), vsync: this);
@@ -126,8 +125,10 @@ class _PageCurlEffectState extends State<PageCurlEffect>
               _animationController.addStatusListener(statusListener2);
               _animationController.forward();
             } else {
+              /// startPoint is not touched from the edge
               pageCurlCtrl.onPanEnd(dragEndDetails);
             }
+            pageCurlCtrl.isEdgeDragging = false;
           },
           child: Consumer<PageCurlController>(
             builder: (context, pageCurlCtlr, child) {
@@ -198,15 +199,16 @@ class _PageCurlEffectState extends State<PageCurlEffect>
                                   if (widget.pageBuilder != null)
                                     widget.pageBuilder!(
                                         context, previousPageIndex),
-                                CustomPaint(
-                                  painter: PageCurlPainter(
-                                      nullableCylinder: pageCurlCtlr.cylinder,
-                                      nullableHorizontalPageCurl:
-                                          pageCurlCtlr.horizontalPageCurl,
-                                      nullableMiddlePageCurl:
-                                          pageCurlCtlr.middlePageCurl),
-                                  child: SizedBox.expand(),
-                                ),
+                                if (pageCurlCtrl.startPoint != null)
+                                  CustomPaint(
+                                    painter: PageCurlPainter(
+                                        nullableCylinder: pageCurlCtlr.cylinder,
+                                        nullableHorizontalPageCurl:
+                                            pageCurlCtlr.horizontalPageCurl,
+                                        nullableMiddlePageCurl:
+                                            pageCurlCtlr.middlePageCurl),
+                                    child: SizedBox.expand(),
+                                  ),
                               ],
                             ),
                           ),

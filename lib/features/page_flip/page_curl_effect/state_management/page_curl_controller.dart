@@ -58,6 +58,9 @@ class PageCurlController extends ChangeNotifier {
   MiddlePageCurl? middlePageCurl;
   HorizontalPageCurl? horizontalPageCurl;
 
+  /// Checking user dragging from the edge of device
+  bool isEdgeDragging = false;
+
   void onPanStart(DragStartDetails dragStartDetails) {}
 
   void onPanEnd(DragEndDetails dragEndDetails) {
@@ -81,12 +84,29 @@ class PageCurlController extends ChangeNotifier {
     pageCurlState = SketchState();
   }
 
+  bool isTouchFromTheEdge(Offset position, Offset delta, FPoint startPoint) {
+    if (delta.dx > 0 && startPoint.x < 80 ||
+        delta.dx < 0 && startPoint.x > paperSize.width - 80) {
+      return true;
+    }
+    return false;
+  }
+
   void onPanUpdate(DragUpdateDetails dragUpdateDetails) {
-    /// prevent backward if index == 0
-    /// prevent forward if index ==  [numberOfPage]
     startPoint = startPoint ??
         FPoint(dragUpdateDetails.localPosition.dx,
             dragUpdateDetails.localPosition.dy);
+
+    /// Only allow user touch from the edge of the left to right or in the reverse direction
+    if (isEdgeDragging == false &&
+        !isTouchFromTheEdge(dragUpdateDetails.localPosition,
+            dragUpdateDetails.delta, startPoint!)) {
+      reset();
+      return;
+    }
+
+    isEdgeDragging = true;
+
     if (startPoint != null &&
             startPoint!.x < PCConstants.TURN_PAGE_BARRIER &&
             pageCurlIndex == 0 ||
@@ -147,14 +167,12 @@ class PageCurlController extends ChangeNotifier {
   void onForwardComplete() {
     if (pageCurlIndex < (numberOfPage - 1)) {
       pageCurlIndex++;
-      // notifyListeners();
     }
   }
 
   void onBackwardComplete() {
     if (pageCurlIndex > 0) {
       pageCurlIndex--;
-      // notifyListeners();
     }
   }
 
