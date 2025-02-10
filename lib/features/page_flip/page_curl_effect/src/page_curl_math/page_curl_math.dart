@@ -1,8 +1,9 @@
 
 import 'dart:math';
 
-import 'package:flutter_example_project/features/page_flip/page_curl_effect/model/coordinates/FPoint.dart';
-import 'package:flutter_example_project/features/page_flip/page_curl_effect/model/coordinates/OPoint.dart';
+import 'package:flutter_example_project/features/page_flip/page_curl_effect/src/model/coordinates/OPoint.dart';
+
+import '../model/coordinates/FPoint.dart';
 
 /// Page curl math
 class PCMath {

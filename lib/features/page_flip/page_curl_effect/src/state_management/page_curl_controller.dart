@@ -1,15 +1,16 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_example_project/features/page_flip/page_curl_effect/constants.dart';
-import 'package:flutter_example_project/features/page_flip/page_curl_effect/model/coordinates/FPoint.dart';
-import 'package:flutter_example_project/features/page_flip/page_curl_effect/model/coordinates/OPoint.dart';
-import 'package:flutter_example_project/features/page_flip/page_curl_effect/model/cylinder.dart';
-import 'package:flutter_example_project/features/page_flip/page_curl_effect/state_management/state/horizontal_page_curl.dart';
-import 'package:flutter_example_project/features/page_flip/page_curl_effect/state_management/state/middle_paper_curl.dart';
-import 'package:flutter_example_project/features/page_flip/page_curl_effect/page_curl_math/page_curl_math.dart';
-import 'package:flutter_example_project/features/page_flip/page_curl_effect/state_management/events/page_curl_events.dart';
+import 'package:flutter_example_project/features/page_flip/page_curl_effect/src/constants.dart';
+import 'package:flutter_example_project/features/page_flip/page_curl_effect/src/model/coordinates/OPoint.dart';
+import 'package:flutter_example_project/features/page_flip/page_curl_effect/src/model/cylinder.dart';
+import 'package:flutter_example_project/features/page_flip/page_curl_effect/src/page_curl_math/page_curl_math.dart';
+import 'package:flutter_example_project/features/page_flip/page_curl_effect/src/state_management/events/page_curl_events.dart';
+import 'package:flutter_example_project/features/page_flip/page_curl_effect/src/state_management/state/horizontal_page_curl.dart';
+import 'package:flutter_example_project/features/page_flip/page_curl_effect/src/state_management/state/middle_paper_curl.dart';
 import 'dart:math';
 
-import 'package:flutter_example_project/features/page_flip/page_curl_effect/state_management/state/page_curl_state.dart';
+import 'package:flutter_example_project/features/page_flip/page_curl_effect/src/state_management/state/page_curl_state.dart';
+
+import '../model/coordinates/FPoint.dart';
 
 class PageCurlController extends ChangeNotifier {
   final double PAGE_LEFT_LIMIT = 50;

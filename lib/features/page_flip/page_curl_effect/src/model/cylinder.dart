@@ -1,11 +1,10 @@
 import 'dart:math';
 import 'dart:ui';
 
-import 'package:flutter/foundation.dart';
-import 'package:flutter_example_project/features/page_flip/page_curl_effect/model/coordinates/FPoint.dart';
+import 'package:flutter_example_project/features/page_flip/page_curl_effect/src/model/coordinates/FPoint.dart';
 
-import 'package:flutter_example_project/features/page_flip/page_curl_effect/model/coordinates/OPoint.dart';
-import 'package:flutter_example_project/features/page_flip/page_curl_effect/page_curl_math/page_curl_math.dart';
+import 'package:flutter_example_project/features/page_flip/page_curl_effect/src/model/coordinates/OPoint.dart';
+import 'package:flutter_example_project/features/page_flip/page_curl_effect/src/page_curl_math/page_curl_math.dart';
 
 class Cylinder {
   final Size paperSize;

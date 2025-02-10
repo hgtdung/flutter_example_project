@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_example_project/features/page_flip/page_curl_effect/page_curl_effect.dart';
-import 'package:flutter_example_project/features/page_flip/page_curl_effect/state_management/page_curl_controller.dart';
+import 'package:flutter_example_project/features/page_flip/page_curl_effect/src/state_management/page_curl_controller.dart';
 
 class PageCurlEffectExample extends StatefulWidget {
   const PageCurlEffectExample({super.key});

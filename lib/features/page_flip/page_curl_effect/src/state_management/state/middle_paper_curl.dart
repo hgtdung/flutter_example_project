@@ -1,4 +1,5 @@
-import 'package:flutter_example_project/features/page_flip/page_curl_effect/model/coordinates/FPoint.dart';
+
+import 'package:flutter_example_project/features/page_flip/page_curl_effect/src/model/coordinates/FPoint.dart';
 
 /// Page curl will be drawn by Quadratic Bezier curve and Conic Bezier curve
 class MiddlePageCurl {
